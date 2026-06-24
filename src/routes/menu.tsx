@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Search, Plus, Minus, Flame, Sparkles } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
 import { supabase } from "@/integrations/supabase/client";
