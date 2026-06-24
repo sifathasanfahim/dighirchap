@@ -175,7 +175,7 @@ function HomePage() {
       {/* Top picks */}
       <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{showAll ? "Full menu" : "Top picks"}</h2>
+          <h2 className="text-lg font-bold">{activeCat ? (categories.data?.find((c) => c.id === activeCat)?.name ?? "Category") : showAll ? "Full menu" : "Top picks"}</h2>
           <Link
             to="/menu"
             className="rounded-full bg-yellow-300 px-3 py-1 text-xs font-bold text-black"
