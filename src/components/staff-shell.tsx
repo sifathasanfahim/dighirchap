@@ -28,6 +28,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/orders", label: "Orders", icon: ListOrdered },
   { to: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
   { to: "/admin/banners", label: "Banners", icon: ImageIcon },
+  { to: "/admin/popups", label: "Popups", icon: ImageIcon },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/coupons", label: "Coupons", icon: Ticket },
   { to: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
