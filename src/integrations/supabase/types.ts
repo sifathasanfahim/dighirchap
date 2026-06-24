@@ -169,6 +169,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_top_pick: boolean
           name: string
           price: number
           updated_at: string
@@ -180,6 +181,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_top_pick?: boolean
           name: string
           price: number
           updated_at?: string
@@ -191,6 +193,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_top_pick?: boolean
           name?: string
           price?: number
           updated_at?: string
