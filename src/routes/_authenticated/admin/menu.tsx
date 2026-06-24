@@ -32,6 +32,7 @@ const empty: ItemForm = { name: "", description: "", price: "", category_id: "",
 function AdminMenu() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ItemForm>(empty);
+  const [filterCat, setFilterCat] = useState<string>("all");
 
   const categories = useQuery({
     queryKey: ["admin-categories"],
@@ -42,6 +43,10 @@ function AdminMenu() {
     queryKey: ["admin-items"],
     queryFn: async () => (await supabase.from("menu_items").select("*, categories(name)").order("name")).data ?? [],
   });
+
+  const filteredItems = filterCat === "all"
+    ? items.data
+    : items.data?.filter((i) => i.category_id === filterCat);
 
   const save = async () => {
     const payload = {
