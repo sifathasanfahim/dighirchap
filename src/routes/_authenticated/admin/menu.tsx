@@ -203,7 +203,7 @@ function AdminMenu() {
                 <div className="text-xs text-muted-foreground">{i.categories?.name}</div>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available, image_url: i.image_url ?? "" }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                 <button onClick={() => del(i.id)} className="p-1 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
