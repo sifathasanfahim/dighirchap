@@ -26,9 +26,10 @@ interface ItemForm {
   category_id: string;
   available: boolean;
   image_url: string;
+  is_top_pick: boolean;
 }
 
-const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "" };
+const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "", is_top_pick: false };
 
 
 function AdminMenu() {
