@@ -62,6 +62,7 @@ function AdminMenu() {
       category_id: form.category_id || null,
       available: form.available,
       image_url: form.image_url || null,
+      is_top_pick: form.is_top_pick,
     };
     const op = form.id
       ? supabase.from("menu_items").update(payload).eq("id", form.id)
