@@ -56,9 +56,10 @@ function HomePage() {
         .from("menu_items")
         .select("id, name, description, price, image_url, category_id, is_top_pick")
         .eq("available", true);
-      if (!showAll) q = q.eq("is_top_pick", true);
+      // Top picks filter only when no category selected and not showing all
+      if (!showAll && !activeCat) q = q.eq("is_top_pick", true);
       if (activeCat) q = q.eq("category_id", activeCat);
-      q = q.order("created_at", { ascending: false }).limit(showAll ? 100 : 20);
+      q = q.order("created_at", { ascending: false }).limit(showAll || activeCat ? 100 : 20);
       return (await q).data ?? [];
     },
   });
@@ -174,7 +175,7 @@ function HomePage() {
       {/* Top picks */}
       <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{showAll ? "Full menu" : "Top picks"}</h2>
+          <h2 className="text-lg font-bold">{activeCat ? (categories.data?.find((c) => c.id === activeCat)?.name ?? "Category") : showAll ? "Full menu" : "Top picks"}</h2>
           <Link
             to="/menu"
             className="rounded-full bg-yellow-300 px-3 py-1 text-xs font-bold text-black"
