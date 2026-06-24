@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Pencil, Trash2, Upload, Loader2, X } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,11 @@ interface ItemForm {
   price: string;
   category_id: string;
   available: boolean;
+  image_url: string;
 }
 
-const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true };
+const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "" };
+
 
 function AdminMenu() {
   const [open, setOpen] = useState(false);
