@@ -10,6 +10,7 @@ import {
   Coins,
   BarChart3,
   LogOut,
+  Image as ImageIcon,
   Menu as MenuIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -26,6 +27,7 @@ const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/orders", label: "Orders", icon: ListOrdered },
   { to: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
+  { to: "/admin/banners", label: "Banners", icon: ImageIcon },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/coupons", label: "Coupons", icon: Ticket },
   { to: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
