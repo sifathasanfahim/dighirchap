@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Phone } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,13 @@ function ComplaintsPage() {
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState<string>("none");
   const [submitting, setSubmitting] = useState(false);
+
+  const settings = useQuery({
+    queryKey: ["app-settings-public"],
+    queryFn: async () =>
+      (await (supabase as any).from("app_settings").select("support_phone").eq("id", 1).maybeSingle()).data,
+  });
+  const supportPhone: string = settings.data?.support_phone?.trim() ?? "";
 
   const orders = useQuery({
     queryKey: ["my-orders-simple", userId],
@@ -70,6 +78,19 @@ function ComplaintsPage() {
   return (
     <CustomerShell>
       <div className="space-y-6">
+        {supportPhone && (
+          <a
+            href={`tel:${supportPhone.replace(/\s+/g, "")}`}
+            className="flex items-center justify-between gap-3 rounded-2xl border bg-primary p-4 text-primary-foreground shadow hover:bg-primary/90"
+          >
+            <div>
+              <div className="text-xs uppercase tracking-wider opacity-80">Need help now?</div>
+              <div className="text-lg font-bold">Call {supportPhone}</div>
+            </div>
+            <Phone className="h-6 w-6" />
+          </a>
+        )}
+
         <div>
           <h1 className="text-2xl font-bold">Help & Complaints</h1>
           <p className="text-sm text-muted-foreground">Tell us what went wrong — we'll get back to you.</p>

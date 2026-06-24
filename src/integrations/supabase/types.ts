@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: number
+          support_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          support_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          support_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           active: boolean
