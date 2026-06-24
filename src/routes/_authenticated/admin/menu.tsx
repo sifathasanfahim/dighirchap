@@ -76,33 +76,48 @@ function AdminMenu() {
 
   return (
     <StaffShell title="Menu">
-      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(empty); }}>
-        <DialogTrigger asChild>
-          <Button className="mb-4"><Plus className="mr-2 h-4 w-4" /> Add item</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{form.id ? "Edit" : "Add"} item</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-            <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-            <div><Label>Price</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-            <div>
-              <Label>Category</Label>
-              <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
-                  {categories.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Label className="whitespace-nowrap">Filter category:</Label>
+          <Select value={filterCat} onValueChange={setFilterCat}>
+            <SelectTrigger className="w-64"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {categories.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(empty); }}>
+          <DialogTrigger asChild>
+            <Button onClick={() => setForm({ ...empty, category_id: filterCat !== "all" ? filterCat : "" })}>
+              <Plus className="mr-2 h-4 w-4" /> Add item{filterCat !== "all" ? ` to ${categories.data?.find((c) => c.id === filterCat)?.name ?? ""}` : ""}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{form.id ? "Edit" : "Add"} item</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+              <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+              <div><Label>Price</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+              <div>
+                <Label>Category</Label>
+                <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectContent>
+                    {categories.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
+              <Button onClick={save} className="w-full">Save</Button>
             </div>
-            <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
-            <Button onClick={save} className="w-full">Save</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+        <div className="ml-auto text-sm text-muted-foreground">{filteredItems?.length ?? 0} items</div>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.data?.map((i) => (
+        {filteredItems?.map((i) => (
           <div key={i.id} className="rounded-2xl border bg-card p-4">
             <div className="flex items-start justify-between">
               <div>
@@ -121,6 +136,7 @@ function AdminMenu() {
             </div>
           </div>
         ))}
+        {filteredItems?.length === 0 && <div className="col-span-full rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">No items in this category yet. Click "Add item" to create one.</div>}
       </div>
     </StaffShell>
   );
