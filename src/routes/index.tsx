@@ -256,7 +256,7 @@ function CategoryPill({
         {imageUrl ? (
           <img src={imageUrl} alt={label} className="h-full w-full object-cover" />
         ) : (
-          <span className="text-2xl">🍽️</span>
+          <span className="text-2xl">{categoryEmoji(label)}</span>
         )}
       </div>
       <span
@@ -269,4 +269,35 @@ function CategoryPill({
       </span>
     </button>
   );
+}
+
+function categoryEmoji(name: string): string {
+  const n = name.toLowerCase();
+  const map: [RegExp, string][] = [
+    [/burger|বার্গার/i, "🍔"],
+    [/pizza|পিজ্জা/i, "🍕"],
+    [/nacho|নাচোস/i, "🌮"],
+    [/sandwich|স্যান্ডউইচ/i, "🥪"],
+    [/corn ?dog|কর্ন/i, "🌭"],
+    [/meat|মিট/i, "🥩"],
+    [/shawarma|শর্মা/i, "🌯"],
+    [/pasta|পাস্তা/i, "🍝"],
+    [/noodle|নুডুলস/i, "🍜"],
+    [/fry|ফ্রাই/i, "🍟"],
+    [/family|ফ্যামিলি|combo|কম্বো|set|সেট/i, "🍱"],
+    [/thali|থালি/i, "🍛"],
+    [/masala|মাসালা/i, "🌶️"],
+    [/kabab|kebab|কাবাব/i, "🍢"],
+    [/chap|চাপ/i, "🍗"],
+    [/naan|roti|নান|রুটি/i, "🫓"],
+    [/faluda|ফালুদা|ice ?cream|আইসক্রিম/i, "🍨"],
+    [/lemon|mojito|মজিতো|লেমনেড/i, "🍋"],
+    [/lassi|লাচ্ছি|milk ?shake|মিল্ক/i, "🥛"],
+    [/juice|জুস/i, "🧃"],
+    [/hot ?coffee|হট কফি/i, "☕"],
+    [/cold ?coffee|কোল্ড কফি/i, "🧋"],
+    [/beverage|বেভারেজ|drink/i, "🥤"],
+  ];
+  for (const [re, emoji] of map) if (re.test(n)) return emoji;
+  return "🍽️";
 }
