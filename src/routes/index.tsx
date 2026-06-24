@@ -221,12 +221,12 @@ function HomePage() {
           ))}
           {items.data && items.data.length === 0 ? (
             <div className="col-span-full rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-              No items in this category yet.
+              {showAll ? "No items in this category yet." : "No top picks selected yet. Tap “See more” to browse the full menu."}
             </div>
           ) : null}
         </div>
 
-        {!showAll && (items.data?.length ?? 0) > 0 && (
+        {!showAll && (
           <div className="mt-6 flex justify-center">
             <button
               onClick={() => setShowAll(true)}
