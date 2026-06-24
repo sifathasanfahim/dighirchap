@@ -78,12 +78,15 @@ function AdminPopups() {
       const ext = file.name.split(".").pop() || "png";
       const path = `popups/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const up = await supabase.storage.from("menu-images").upload(path, file, {
-        cacheControl: "3600",
+        contentType: file.type,
         upsert: false,
       });
       if (up.error) throw up.error;
-      const { data } = supabase.storage.from("menu-images").getPublicUrl(path);
-      setForm((f) => ({ ...f, image_url: data.publicUrl }));
+      const signed = await supabase.storage
+        .from("menu-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signed.error) throw signed.error;
+      setForm((f) => ({ ...f, image_url: signed.data.signedUrl }));
       toast.success("Image uploaded");
     } catch (e: any) {
       toast.error(e.message ?? "Upload failed");
