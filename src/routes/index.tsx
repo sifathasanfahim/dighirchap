@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Heart, Clock, Star } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
+import { PopupBanner } from "@/components/popup-banner";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -75,6 +76,7 @@ function HomePage() {
 
   return (
     <CustomerShell>
+      <PopupBanner />
       {/* Hero slider */}
       <section className="relative">
         {slides.length > 0 ? (
