@@ -181,51 +181,50 @@ function HomePage() {
             See all
           </Link>
         </div>
-        <div className="-mx-4 overflow-x-auto px-4">
-          <div className="flex gap-4 pb-2">
-            {(items.data ?? []).map((m) => (
-              <Link
-                key={m.id}
-                to="/menu"
-                className="block w-56 shrink-0 overflow-hidden rounded-2xl border bg-card shadow-sm"
-              >
-                <div className="relative h-36 bg-muted">
-                  {m.image_url ? (
-                    <img
-                      src={m.image_url}
-                      alt={m.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="grid h-full place-items-center text-3xl">🍗</div>
-                  )}
-                  <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-background/95 text-primary shadow">
-                    <Heart className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-background/95 px-2 py-1 text-[11px] font-medium shadow">
-                    <Clock className="h-3 w-3" /> 25 min
-                  </span>
-                </div>
-                <div className="p-3">
-                  <div className="truncate text-sm font-bold">{m.name}</div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> 4.8
-                    </span>
-                    <span className="rounded-full bg-foreground px-2.5 py-1 text-xs font-bold text-background">
-                      {fmtBDT(Number(m.price))}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-            {items.data && items.data.length === 0 ? (
-              <div className="w-full rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                No items in this category yet.
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {(items.data ?? []).map((m) => (
+            <Link
+              key={m.id}
+              to="/menu"
+              className="block overflow-hidden rounded-2xl border bg-card shadow-sm"
+            >
+              <div className="relative h-44 bg-muted">
+                {m.image_url ? (
+                  <img
+                    src={m.image_url}
+                    alt={m.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center text-3xl">🍗</div>
+                )}
+                <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-background/95 text-primary shadow">
+                  <Heart className="h-3.5 w-3.5" />
+                </span>
+                <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-background/95 px-2 py-1 text-[11px] font-medium shadow">
+                  <Clock className="h-3 w-3" /> 25 min
+                </span>
               </div>
-            ) : null}
-          </div>
+              <div className="p-3">
+                <div className="truncate text-sm font-bold">{m.name}</div>
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> 4.8
+                  </span>
+                  <span className="rounded-full bg-foreground px-2.5 py-1 text-xs font-bold text-background">
+                    {fmtBDT(Number(m.price))}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+          {items.data && items.data.length === 0 ? (
+            <div className="col-span-full rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+              No items in this category yet.
+            </div>
+          ) : null}
         </div>
+
       </section>
     </CustomerShell>
   );
