@@ -226,6 +226,16 @@ function HomePage() {
           ) : null}
         </div>
 
+        {!showAll && (items.data?.length ?? 0) > 0 && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background shadow"
+            >
+              See more
+            </button>
+          </div>
+        )}
       </section>
     </CustomerShell>
   );
