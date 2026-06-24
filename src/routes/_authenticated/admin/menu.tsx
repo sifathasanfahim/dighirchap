@@ -147,6 +147,10 @@ function AdminMenu() {
 
               <div>
                 <Label>Image</Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Max 1 MB · recommended 800×800 px (square) or 1200×800 px. Use JPG/WebP for smooth loading.
+                </p>
+
                 <input
                   ref={fileRef}
                   type="file"
