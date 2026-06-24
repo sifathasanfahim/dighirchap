@@ -76,6 +76,7 @@ function HomePage() {
 
   return (
     <CustomerShell>
+      <PopupBanner />
       {/* Hero slider */}
       <section className="relative">
         {slides.length > 0 ? (
