@@ -8,13 +8,13 @@ export function CustomerShell({ children }: { children: ReactNode }) {
   const count = useCart((s) => s.items.reduce((a, i) => a + i.qty, 0));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const tabs = [
+  const tabs: { to: string; icon: typeof Home; label: string; badge?: number }[] = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/menu", icon: UtensilsCrossed, label: "Menu" },
     { to: "/cart", icon: ShoppingBag, label: "Cart", badge: count },
     { to: "/orders", icon: Receipt, label: "Orders" },
     { to: "/profile", icon: User2, label: "Account" },
-  ] as const;
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-20">
