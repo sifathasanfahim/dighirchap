@@ -24,6 +24,7 @@ import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminRidersRouteImport } from './routes/_authenticated/admin/riders'
 import { Route as AuthenticatedAdminPopupsRouteImport } from './routes/_authenticated/admin/popups'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
@@ -109,6 +110,12 @@ const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminRidersRoute =
   AuthenticatedAdminRidersRouteImport.update({
     id: '/riders',
@@ -182,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/popups': typeof AuthenticatedAdminPopupsRoute
   '/admin/riders': typeof AuthenticatedAdminRidersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -206,6 +214,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/popups': typeof AuthenticatedAdminPopupsRoute
   '/admin/riders': typeof AuthenticatedAdminRidersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
@@ -233,6 +242,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/popups': typeof AuthenticatedAdminPopupsRoute
   '/_authenticated/admin/riders': typeof AuthenticatedAdminRidersRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/popups'
     | '/admin/riders'
+    | '/admin/settings'
     | '/orders/$id'
     | '/admin/'
     | '/orders/'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/popups'
     | '/admin/riders'
+    | '/admin/settings'
     | '/orders/$id'
     | '/admin'
     | '/orders'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/popups'
     | '/_authenticated/admin/riders'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/orders/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/orders/'
@@ -433,6 +446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/riders': {
       id: '/_authenticated/admin/riders'
       path: '/riders'
@@ -509,6 +529,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminPopupsRoute: typeof AuthenticatedAdminPopupsRoute
   AuthenticatedAdminRidersRoute: typeof AuthenticatedAdminRidersRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -523,6 +544,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminPopupsRoute: AuthenticatedAdminPopupsRoute,
     AuthenticatedAdminRidersRoute: AuthenticatedAdminRidersRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
 
@@ -567,13 +589,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
