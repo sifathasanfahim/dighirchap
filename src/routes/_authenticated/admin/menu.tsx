@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Pencil, Trash2, Upload, Loader2, X } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,14 +25,19 @@ interface ItemForm {
   price: string;
   category_id: string;
   available: boolean;
+  image_url: string;
 }
 
-const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true };
+const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "" };
+
 
 function AdminMenu() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ItemForm>(empty);
   const [filterCat, setFilterCat] = useState<string>("all");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
 
   const categories = useQuery({
     queryKey: ["admin-categories"],
@@ -55,6 +60,7 @@ function AdminMenu() {
       price: Number(form.price),
       category_id: form.category_id || null,
       available: form.available,
+      image_url: form.image_url || null,
     };
     const op = form.id
       ? supabase.from("menu_items").update(payload).eq("id", form.id)
@@ -66,6 +72,33 @@ function AdminMenu() {
     setForm(empty);
     items.refetch();
   };
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const up = await supabase.storage.from("menu-images").upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      // Long-lived signed URL (10 years) so it works with a private bucket
+      const signed = await supabase.storage
+        .from("menu-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signed.error) throw signed.error;
+      setForm((f) => ({ ...f, image_url: signed.data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
 
   const del = async (id: string) => {
     if (!confirm("Delete item?")) return;
@@ -109,7 +142,52 @@ function AdminMenu() {
                 </Select>
               </div>
               <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
+
+              <div>
+                <Label>Image</Label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); }}
+                />
+                {form.image_url ? (
+                  <div className="relative mt-1 overflow-hidden rounded-lg border">
+                    <img src={form.image_url} alt="" className="h-40 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
+                      className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-background/95 text-foreground shadow"
+                      aria-label="Remove image"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute bottom-2 right-2 rounded-full bg-background/95 px-3 py-1 text-xs font-medium shadow"
+                    >
+                      {uploading ? "Uploading…" : "Replace"}
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-1 w-full"
+                    disabled={uploading}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {uploading ? "Uploading…" : "Upload image"}
+                  </Button>
+                )}
+              </div>
+
               <Button onClick={save} className="w-full">Save</Button>
+
             </div>
           </DialogContent>
         </Dialog>
@@ -125,7 +203,7 @@ function AdminMenu() {
                 <div className="text-xs text-muted-foreground">{i.categories?.name}</div>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available, image_url: i.image_url ?? "" }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                 <button onClick={() => del(i.id)} className="p-1 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
