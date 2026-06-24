@@ -166,14 +166,14 @@ function MenuPage() {
         {visibleCats.map((c) => (
           <CategorySection
             key={c.id}
-            ref={(el) => (sectionRefs.current[c.id] = el)}
+            ref={(el) => { sectionRefs.current[c.id] = el; }}
             title={c.name}
             items={grouped.get(c.id) ?? []}
           />
         ))}
         {hasUncat && (
           <CategorySection
-            ref={(el) => (sectionRefs.current["uncat"] = el)}
+            ref={(el) => { sectionRefs.current["uncat"] = el; }}
             title="More dishes"
             items={grouped.get("uncat") ?? []}
           />
