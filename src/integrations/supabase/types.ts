@@ -367,6 +367,45 @@ export type Database = {
           },
         ]
       }
+      popup_banners: {
+        Row: {
+          active: boolean
+          created_at: string
+          end_at: string | null
+          id: string
+          image_url: string
+          link_url: string | null
+          sort_order: number
+          start_at: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          image_url: string
+          link_url?: string | null
+          sort_order?: number
+          start_at?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          image_url?: string
+          link_url?: string | null
+          sort_order?: number
+          start_at?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
