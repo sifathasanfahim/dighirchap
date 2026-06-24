@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2 } from "lucide-react";
+import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
@@ -26,9 +26,14 @@ export function CustomerShell({ children }: { children: ReactNode }) {
             </div>
             <span className="text-lg font-bold tracking-tight">Dighir Chap</span>
           </Link>
-          <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground">
-            Track order
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/complaints" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+              <LifeBuoy className="h-4 w-4" /> Help
+            </Link>
+            <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground">
+              Track order
+            </Link>
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-4">{children}</main>
