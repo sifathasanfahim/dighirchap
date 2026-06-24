@@ -47,17 +47,18 @@ function HomePage() {
   });
 
   const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const items = useQuery({
-    queryKey: ["home-items", activeCat],
+    queryKey: ["home-items", activeCat, showAll],
     queryFn: async () => {
       let q = supabase
         .from("menu_items")
-        .select("id, name, description, price, image_url, category_id")
-        .eq("available", true)
-        .order("created_at", { ascending: false })
-        .limit(20);
+        .select("id, name, description, price, image_url, category_id, is_top_pick")
+        .eq("available", true);
+      if (!showAll) q = q.eq("is_top_pick", true);
       if (activeCat) q = q.eq("category_id", activeCat);
+      q = q.order("created_at", { ascending: false }).limit(showAll ? 100 : 20);
       return (await q).data ?? [];
     },
   });
