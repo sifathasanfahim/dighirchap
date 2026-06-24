@@ -228,12 +228,12 @@ function HomePage() {
 
         {!showAll && (
           <div className="mt-6 flex justify-center">
-            <button
-              onClick={() => setShowAll(true)}
+            <Link
+              to="/menu"
               className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background shadow"
             >
               See more
-            </button>
+            </Link>
           </div>
         )}
       </section>
