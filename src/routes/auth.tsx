@@ -70,8 +70,12 @@ function AuthPage() {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-bold">D</div>
           <span className="font-bold">Dighir Chap</span>
         </Link>
-        <h1 className="text-xl font-bold">{mode === "signin" ? "Welcome back" : "Create account"}</h1>
-        <p className="text-sm text-muted-foreground">Order delicious chap & biryani in minutes.</p>
+        <h1 className="text-xl font-bold">
+          {mode === "signin" ? "Welcome back" : mode === "signup" ? "Create account" : "Reset password"}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {mode === "forgot" ? "We'll email you a link to set a new password." : "Order delicious chap & biryani in minutes."}
+        </p>
         <form onSubmit={submit} className="mt-5 space-y-3">
           {mode === "signup" && (
             <>
@@ -89,19 +93,36 @@ function AuthPage() {
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {mode === "signin" && (
+                  <button
+                    type="button"
+                    onClick={() => setMode("forgot")}
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Please wait..." : mode === "signin" ? "Sign in" : "Create account"}
+            {loading ? "Please wait..." : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
           </Button>
         </form>
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="mt-4 w-full text-sm text-muted-foreground hover:text-foreground"
         >
-          {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
+          {mode === "signin"
+            ? "New here? Create an account"
+            : mode === "signup"
+              ? "Already have an account? Sign in"
+              : "Back to sign in"}
         </button>
       </div>
     </div>
