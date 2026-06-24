@@ -26,9 +26,10 @@ interface ItemForm {
   category_id: string;
   available: boolean;
   image_url: string;
+  is_top_pick: boolean;
 }
 
-const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "" };
+const empty: ItemForm = { name: "", description: "", price: "", category_id: "", available: true, image_url: "", is_top_pick: false };
 
 
 function AdminMenu() {
@@ -61,6 +62,7 @@ function AdminMenu() {
       category_id: form.category_id || null,
       available: form.available,
       image_url: form.image_url || null,
+      is_top_pick: form.is_top_pick,
     };
     const op = form.id
       ? supabase.from("menu_items").update(payload).eq("id", form.id)
@@ -144,6 +146,7 @@ function AdminMenu() {
                 </Select>
               </div>
               <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
+              <div className="flex items-center gap-2"><Switch checked={form.is_top_pick} onCheckedChange={(v) => setForm({ ...form, is_top_pick: v })} /><Label>Show in Top picks</Label></div>
 
               <div>
                 <Label>Image</Label>
@@ -209,7 +212,7 @@ function AdminMenu() {
                 <div className="text-xs text-muted-foreground">{i.categories?.name}</div>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available, image_url: i.image_url ?? "" }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => { setForm({ id: i.id, name: i.name, description: i.description ?? "", price: String(i.price), category_id: i.category_id ?? "", available: i.available, image_url: i.image_url ?? "", is_top_pick: (i as any).is_top_pick ?? false }); setOpen(true); }} className="p-1 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button>
                 <button onClick={() => del(i.id)} className="p-1 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>

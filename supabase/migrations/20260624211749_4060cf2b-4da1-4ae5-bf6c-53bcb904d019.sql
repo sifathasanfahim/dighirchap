@@ -1,0 +1,2 @@
+ALTER TABLE public.menu_items ADD COLUMN IF NOT EXISTS is_top_pick BOOLEAN NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS menu_items_is_top_pick_idx ON public.menu_items (is_top_pick) WHERE is_top_pick = true;
