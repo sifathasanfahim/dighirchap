@@ -146,6 +146,7 @@ function AdminMenu() {
                 </Select>
               </div>
               <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
+              <div className="flex items-center gap-2"><Switch checked={form.is_top_pick} onCheckedChange={(v) => setForm({ ...form, is_top_pick: v })} /><Label>Show in Top picks</Label></div>
 
               <div>
                 <Label>Image</Label>
