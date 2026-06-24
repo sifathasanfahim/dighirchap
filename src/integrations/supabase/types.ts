@@ -14,16 +14,497 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      complaints: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          message: string
+          order_id: string | null
+          resolution: string | null
+          status: Database["public"]["Enums"]["complaint_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          message: string
+          order_id?: string | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          message?: string
+          order_id?: string | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          min_order: number
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          min_order?: number
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          min_order?: number
+          type?: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      loyalty_rules: {
+        Row: {
+          coins_per_100: number
+          gold_threshold: number
+          id: number
+          platinum_threshold: number
+          redeem_rate: number
+          silver_threshold: number
+          updated_at: string
+        }
+        Insert: {
+          coins_per_100?: number
+          gold_threshold?: number
+          id?: number
+          platinum_threshold?: number
+          redeem_rate?: number
+          silver_threshold?: number
+          updated_at?: string
+        }
+        Update: {
+          coins_per_100?: number
+          gold_threshold?: number
+          id?: number
+          platinum_threshold?: number
+          redeem_rate?: number
+          silver_threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          available: boolean
+          category_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          available?: boolean
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          available?: boolean
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          menu_item_id: string | null
+          name: string
+          order_id: string
+          price: number
+          qty: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          menu_item_id?: string | null
+          name: string
+          order_id: string
+          price: number
+          qty: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          menu_item_id?: string | null
+          name?: string
+          order_id?: string
+          price?: number
+          qty?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          coins_earned: number
+          coins_redeemed: number
+          coupon_code: string | null
+          created_at: string
+          customer_id: string
+          delivered_at: string | null
+          delivery_fee: number
+          discount: number
+          id: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          order_number: string
+          payment_method: string
+          phone: string
+          rider_id: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          coins_earned?: number
+          coins_redeemed?: number
+          coupon_code?: string | null
+          created_at?: string
+          customer_id: string
+          delivered_at?: string | null
+          delivery_fee?: number
+          discount?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          order_number?: string
+          payment_method?: string
+          phone: string
+          rider_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          coins_earned?: number
+          coins_redeemed?: number
+          coupon_code?: string | null
+          created_at?: string
+          customer_id?: string
+          delivered_at?: string | null
+          delivery_fee?: number
+          discount?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string | null
+          order_number?: string
+          payment_method?: string
+          phone?: string
+          rider_id?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_rider_id_fkey"
+            columns: ["rider_id"]
+            isOneToOne: false
+            referencedRelation: "riders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          coins: number
+          created_at: string
+          full_name: string | null
+          id: string
+          lat: number | null
+          lifetime_spend: number
+          lng: number | null
+          phone: string | null
+          tier: Database["public"]["Enums"]["loyalty_tier"]
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          coins?: number
+          created_at?: string
+          full_name?: string | null
+          id: string
+          lat?: number | null
+          lifetime_spend?: number
+          lng?: number | null
+          phone?: string | null
+          tier?: Database["public"]["Enums"]["loyalty_tier"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          coins?: number
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          lat?: number | null
+          lifetime_spend?: number
+          lng?: number | null
+          phone?: string | null
+          tier?: Database["public"]["Enums"]["loyalty_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      riders: {
+        Row: {
+          active: boolean
+          created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          id: string
+          last_location_at: string | null
+          profile_id: string
+          updated_at: string
+          vehicle: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          id?: string
+          last_location_at?: string | null
+          profile_id: string
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          id?: string
+          last_location_at?: string | null
+          profile_id?: string
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "riders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "owner"
+        | "manager"
+        | "cashier"
+        | "marketing"
+        | "rider_manager"
+        | "rider"
+        | "customer"
+      complaint_status: "open" | "in_progress" | "resolved" | "closed"
+      coupon_type: "percent" | "flat" | "free_delivery"
+      loyalty_tier: "bronze" | "silver" | "gold" | "platinum"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "preparing"
+        | "ready"
+        | "picked_up"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +631,28 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "owner",
+        "manager",
+        "cashier",
+        "marketing",
+        "rider_manager",
+        "rider",
+        "customer",
+      ],
+      complaint_status: ["open", "in_progress", "resolved", "closed"],
+      coupon_type: ["percent", "flat", "free_delivery"],
+      loyalty_tier: ["bronze", "silver", "gold", "platinum"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "preparing",
+        "ready",
+        "picked_up",
+        "delivered",
+        "cancelled",
+      ],
+    },
   },
 } as const
