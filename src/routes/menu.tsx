@@ -205,11 +205,8 @@ function CatChip({ label, active, onClick }: { label: string; active: boolean; o
   );
 }
 
-const CategorySection = (() => {
-  function Section(
-    { title, items }: { title: string; items: Item[] },
-    ref: React.Ref<HTMLElement>,
-  ) {
+const CategorySection = forwardRef<HTMLElement, { title: string; items: Item[] }>(
+  function CategorySection({ title, items }, ref) {
     if (!items.length) return null;
     return (
       <section ref={ref} className="scroll-mt-32">
@@ -222,14 +219,8 @@ const CategorySection = (() => {
         </div>
       </section>
     );
-  }
-  return Object.assign(
-    (require("react") as typeof import("react")).forwardRef(Section as any),
-    { displayName: "CategorySection" },
-  );
-})() as unknown as React.ForwardRefExoticComponent<
-  { title: string; items: Item[] } & React.RefAttributes<HTMLElement>
->;
+  },
+);
 
 function DishRow({ item }: { item: Item }) {
   const inCart = useCart((s) => s.items.find((c) => c.id === item.id));
