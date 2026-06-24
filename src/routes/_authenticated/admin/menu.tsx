@@ -142,7 +142,52 @@ function AdminMenu() {
                 </Select>
               </div>
               <div className="flex items-center gap-2"><Switch checked={form.available} onCheckedChange={(v) => setForm({ ...form, available: v })} /><Label>Available</Label></div>
+
+              <div>
+                <Label>Image</Label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); }}
+                />
+                {form.image_url ? (
+                  <div className="relative mt-1 overflow-hidden rounded-lg border">
+                    <img src={form.image_url} alt="" className="h-40 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
+                      className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-background/95 text-foreground shadow"
+                      aria-label="Remove image"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute bottom-2 right-2 rounded-full bg-background/95 px-3 py-1 text-xs font-medium shadow"
+                    >
+                      {uploading ? "Uploading…" : "Replace"}
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-1 w-full"
+                    disabled={uploading}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {uploading ? "Uploading…" : "Upload image"}
+                  </Button>
+                )}
+              </div>
+
               <Button onClick={save} className="w-full">Save</Button>
+
             </div>
           </DialogContent>
         </Dialog>
