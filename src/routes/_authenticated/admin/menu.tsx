@@ -35,6 +35,9 @@ function AdminMenu() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ItemForm>(empty);
   const [filterCat, setFilterCat] = useState<string>("all");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
 
   const categories = useQuery({
     queryKey: ["admin-categories"],
