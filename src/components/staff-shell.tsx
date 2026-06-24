@@ -12,6 +12,7 @@ import {
   LogOut,
   Image as ImageIcon,
   Menu as MenuIcon,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
   { to: "/admin/riders", label: "Riders", icon: Bike },
   { to: "/admin/loyalty", label: "Loyalty", icon: Coins },
+  { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 const ownerNav: NavItem[] = [{ to: "/owner", label: "Analytics", icon: BarChart3 }];
