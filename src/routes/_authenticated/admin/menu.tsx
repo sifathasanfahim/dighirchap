@@ -60,6 +60,7 @@ function AdminMenu() {
       price: Number(form.price),
       category_id: form.category_id || null,
       available: form.available,
+      image_url: form.image_url || null,
     };
     const op = form.id
       ? supabase.from("menu_items").update(payload).eq("id", form.id)
@@ -71,6 +72,33 @@ function AdminMenu() {
     setForm(empty);
     items.refetch();
   };
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const up = await supabase.storage.from("menu-images").upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      // Long-lived signed URL (10 years) so it works with a private bucket
+      const signed = await supabase.storage
+        .from("menu-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signed.error) throw signed.error;
+      setForm((f) => ({ ...f, image_url: signed.data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
 
   const del = async (id: string) => {
     if (!confirm("Delete item?")) return;
