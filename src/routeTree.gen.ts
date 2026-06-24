@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -31,6 +32,11 @@ import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin/banners'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/reset-password'
     | '/admin'
     | '/checkout'
     | '/profile'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/reset-password'
     | '/checkout'
     | '/profile'
     | '/admin/banners'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/profile'
@@ -286,10 +298,18 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   MenuRoute: typeof MenuRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   MenuRoute: MenuRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
