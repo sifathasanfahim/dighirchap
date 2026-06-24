@@ -75,7 +75,9 @@ function AdminMenu() {
 
   const uploadImage = async (file: File) => {
     if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
+    if (file.size > 1024 * 1024) return toast.error("Image is too large. Max 1 MB.");
     setUploading(true);
+
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${crypto.randomUUID()}.${ext}`;
