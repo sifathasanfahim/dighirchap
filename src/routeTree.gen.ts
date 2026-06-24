@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedRiderIndexRouteImport } from './routes/_authenticated/rider/index'
@@ -65,6 +66,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedComplaintsRoute = AuthenticatedComplaintsRouteImport.update({
+  id: '/complaints',
+  path: '/complaints',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/complaints': typeof AuthenticatedComplaintsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/menu': typeof MenuRoute
   '/reset-password': typeof ResetPasswordRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/complaints': typeof AuthenticatedComplaintsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/complaints': typeof AuthenticatedAdminComplaintsRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/checkout'
+    | '/complaints'
     | '/profile'
     | '/admin/banners'
     | '/admin/complaints'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/reset-password'
     | '/checkout'
+    | '/complaints'
     | '/profile'
     | '/admin/banners'
     | '/admin/complaints'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
+    | '/_authenticated/complaints'
     | '/_authenticated/profile'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/complaints'
@@ -363,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/complaints': {
+      id: '/_authenticated/complaints'
+      path: '/complaints'
+      fullPath: '/complaints'
+      preLoaderRoute: typeof AuthenticatedComplaintsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/checkout': {
@@ -515,6 +534,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedComplaintsRoute: typeof AuthenticatedComplaintsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
@@ -525,6 +545,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedComplaintsRoute: AuthenticatedComplaintsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
@@ -546,13 +567,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
