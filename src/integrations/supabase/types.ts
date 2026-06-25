@@ -273,25 +273,28 @@ export type Database = {
           body: string | null
           created_at: string
           id: string
+          is_broadcast: boolean
           read: boolean
           title: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           body?: string | null
           created_at?: string
           id?: string
+          is_broadcast?: boolean
           read?: boolean
           title: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           body?: string | null
           created_at?: string
           id?: string
+          is_broadcast?: boolean
           read?: boolean
           title?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
