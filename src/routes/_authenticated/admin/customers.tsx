@@ -142,15 +142,23 @@ function AdminCustomers() {
           <tbody>
             {customers.data?.map((c) => (
               <tr key={c.id} className="border-t">
-                <td className="px-4 py-3 font-medium">{c.full_name ?? "—"}</td>
+                <td className="px-4 py-3 font-medium">
+                  {c.full_name ?? "—"}
+                  {c.is_guest && (
+                    <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                      GUEST · {c.order_count} order{(c.order_count ?? 0) > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">{c.phone ?? "—"}</td>
                 <td className="px-4 py-3 max-w-xs text-muted-foreground">{c.address ?? "—"}</td>
                 <td className="px-4 py-3 capitalize">{c.tier}</td>
-                <td className="px-4 py-3 text-right">{c.coins}</td>
-                <td className="px-4 py-3 text-right font-semibold">{fmtBDT(c.lifetime_spend)}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(c.created_at)}</td>
+                <td className="px-4 py-3 text-right">{c.coins ?? 0}</td>
+                <td className="px-4 py-3 text-right font-semibold">{fmtBDT(c.lifetime_spend ?? 0)}</td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(c.created_at ?? "")}</td>
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>
