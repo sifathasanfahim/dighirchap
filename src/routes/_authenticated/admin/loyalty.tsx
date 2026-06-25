@@ -87,16 +87,11 @@ function AdminLoyalty() {
   return (
     <StaffShell title="Loyalty Rules">
       <div className="max-w-lg rounded-2xl border bg-card p-5 space-y-3">
-        <h2 className="font-semibold">Coins & Thresholds</h2>
+        <h2 className="font-semibold">Coin Earning</h2>
         <div><Label>Coins per ৳100 spent</Label><Input type="number" value={coins} onChange={(e) => setCoins(e.target.value)} /></div>
         <div><Label>Redeem rate (1 coin = ৳ value)</Label><Input type="number" value={redeem} onChange={(e) => setRedeem(e.target.value)} /></div>
-        <div className="grid grid-cols-3 gap-3">
-          <div><Label>Silver ৳</Label><Input type="number" value={silver} onChange={(e) => setSilver(e.target.value)} /></div>
-          <div><Label>Gold ৳</Label><Input type="number" value={gold} onChange={(e) => setGold(e.target.value)} /></div>
-          <div><Label>Platinum ৳</Label><Input type="number" value={platinum} onChange={(e) => setPlatinum(e.target.value)} /></div>
-        </div>
         <Button onClick={save}>Save rules</Button>
-        <p className="text-xs text-muted-foreground">Note: only the Owner role can update loyalty rules (enforced by RLS).</p>
+        <p className="text-xs text-muted-foreground">Tier thresholds & discounts are now managed below in <b>Tier Designer</b>. Only the Owner can update these rules.</p>
       </div>
 
       <div className="mt-6 max-w-3xl rounded-2xl border bg-card p-5">
