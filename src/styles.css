@@ -19,6 +19,7 @@
  */
 
 @theme inline {
+  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -87,15 +88,17 @@
   --chart-3: oklch(0.6 0.15 180);
   --chart-4: oklch(0.6 0.2 300);
   --chart-5: oklch(0.7 0.18 140);
-  --sidebar: oklch(0.99 0.005 60);
-  --sidebar-foreground: oklch(0.2 0.02 30);
-  --sidebar-primary: oklch(0.65 0.22 32);
-  --sidebar-primary-foreground: oklch(0.99 0.005 60);
-  --sidebar-accent: oklch(0.96 0.015 60);
-  --sidebar-accent-foreground: oklch(0.22 0.02 30);
-  --sidebar-border: oklch(0.92 0.01 60);
+  --sidebar: oklch(0.985 0.003 80);
+  --sidebar-foreground: oklch(0.32 0.01 40);
+  --sidebar-primary: oklch(0.92 0.012 60);
+  --sidebar-primary-foreground: oklch(0.18 0.02 30);
+  --sidebar-accent: oklch(0.945 0.008 60);
+  --sidebar-accent-foreground: oklch(0.18 0.02 30);
+  --sidebar-border: oklch(0.92 0.008 60);
   --sidebar-ring: oklch(0.65 0.22 32);
+  --notion-page: oklch(1 0 0);
 }
+
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
