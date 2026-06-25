@@ -8,6 +8,7 @@ import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sounds";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({
