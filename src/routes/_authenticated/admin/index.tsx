@@ -33,6 +33,8 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
+const STATUS_FLOW = ["pending", "confirmed", "preparing", "ready", "out_for_delivery", "delivered"] as const;
+
 function statusPriority(s: string) {
   const order: Record<string, number> = {
     pending: 0, confirmed: 1, preparing: 2, ready: 3,
@@ -41,25 +43,35 @@ function statusPriority(s: string) {
   return order[s] ?? 99;
 }
 
-function statusStyle(s: string) {
+function statusMeta(s: string) {
   switch (s) {
     case "pending":
-      return { label: "New • Unconfirmed", row: "border-red-500 bg-red-50 dark:bg-red-950/30", badge: "bg-red-600 text-white", icon: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" };
+      return { label: "New", tone: "text-rose-600", dot: "bg-rose-500", chip: "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-900" };
     case "confirmed":
-      return { label: "Confirmed", row: "border-green-500 bg-green-50 dark:bg-green-950/30", badge: "bg-green-600 text-white", icon: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" };
+      return { label: "Confirmed", tone: "text-emerald-600", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900" };
     case "preparing":
-      return { label: "Preparing", row: "border-amber-500 bg-amber-50 dark:bg-amber-950/30", badge: "bg-amber-500 text-white", icon: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" };
+      return { label: "Preparing", tone: "text-amber-600", dot: "bg-amber-500", chip: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900" };
     case "ready":
-      return { label: "Ready", row: "border-blue-500 bg-blue-50 dark:bg-blue-950/30", badge: "bg-blue-600 text-white", icon: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" };
+      return { label: "Ready", tone: "text-sky-600", dot: "bg-sky-500", chip: "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900" };
     case "out_for_delivery":
-      return { label: "Out for delivery", row: "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30", badge: "bg-indigo-600 text-white", icon: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" };
+      return { label: "On the way", tone: "text-indigo-600", dot: "bg-indigo-500", chip: "bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900" };
     case "delivered":
-      return { label: "Delivered", row: "border-muted bg-card", badge: "bg-muted text-muted-foreground", icon: "bg-muted text-muted-foreground" };
+      return { label: "Delivered", tone: "text-muted-foreground", dot: "bg-muted-foreground/60", chip: "bg-muted text-muted-foreground ring-border" };
     case "cancelled":
-      return { label: "Cancelled", row: "border-muted bg-muted/30 opacity-70", badge: "bg-destructive text-destructive-foreground", icon: "bg-muted text-muted-foreground" };
+      return { label: "Cancelled", tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border line-through" };
     default:
-      return { label: s, row: "border-border", badge: "bg-muted text-foreground", icon: "bg-primary/10 text-primary" };
+      return { label: s, tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border" };
   }
+}
+
+function timeAgo(iso: string) {
+  const diff = Math.max(0, Date.now() - new Date(iso).getTime());
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
 
 function AdminDashboard() {
@@ -190,57 +202,101 @@ function AdminDashboard() {
         })}
       </div>
 
-      <div className="mt-6 rounded-2xl border bg-card p-5">
-        <div className="mb-3 flex items-center justify-between">
+      <div className="mt-6 overflow-hidden rounded-2xl border bg-card">
+        <div className="flex items-center justify-between border-b bg-muted/30 px-5 py-3">
           <div className="flex items-center gap-2">
-            <Radio className="h-4 w-4 animate-pulse text-green-500" />
-            <h2 className="font-semibold">Live orders</h2>
-            <span className="text-xs text-muted-foreground">(auto-updates)</span>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <h2 className="text-sm font-semibold tracking-tight">Live orders</h2>
+            {liveOrders.data?.length ? (
+              <span className="rounded-full bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-border">
+                {liveOrders.data.length}
+              </span>
+            ) : null}
+            {(() => {
+              const pending = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
+              return pending ? (
+                <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-600 ring-1 ring-rose-500/30">
+                  {pending} new
+                </span>
+              ) : null;
+            })()}
           </div>
-          <Link to="/admin/orders" className="text-xs text-primary hover:underline">View all →</Link>
+          <Link to="/admin/orders" className="text-xs font-medium text-muted-foreground hover:text-foreground">
+            View all →
+          </Link>
         </div>
         {liveOrders.isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <div className="space-y-2 p-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-muted/50" />
+            ))}
+          </div>
         ) : !liveOrders.data?.length ? (
-          <p className="text-sm text-muted-foreground">No orders yet.</p>
+          <div className="grid place-items-center gap-1 py-12 text-center">
+            <Radio className="h-5 w-5 text-muted-foreground/50" />
+            <p className="text-sm text-muted-foreground">Waiting for the first order…</p>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <ul className="divide-y">
             {[...liveOrders.data]
               .sort((a: any, b: any) => statusPriority(a.status) - statusPriority(b.status))
               .map((o: any) => {
-              const st = statusStyle(o.status);
-              return (
-              <Link
-                key={o.id}
-                to="/admin/orders"
-                className={`flex items-center justify-between rounded-xl border-2 p-3 transition hover:bg-muted/50 ${st.row}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`grid h-9 w-9 place-items-center rounded-full ${st.icon}`}>
-                    <ShoppingBag className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">#{o.order_number}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${st.badge}`}>
-                        {st.label}
-                      </span>
-                      {o.status === "pending" && (
-                        <span className="h-2 w-2 animate-ping rounded-full bg-red-500" />
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(o.created_at).toLocaleTimeString()}
-                    </div>
-                  </div>
-                </div>
-                <div className="font-semibold">{fmtBDT(Number(o.total) || 0)}</div>
-              </Link>
-              );
-            })}
-          </div>
+                const meta = statusMeta(o.status);
+                const stepIdx = STATUS_FLOW.indexOf(o.status as any);
+                const isPending = o.status === "pending";
+                return (
+                  <li key={o.id}>
+                    <Link
+                      to="/admin/orders"
+                      className={`group flex items-center gap-4 px-5 py-3 transition hover:bg-muted/40 ${
+                        isPending ? "bg-rose-50/40 dark:bg-rose-950/10" : ""
+                      }`}
+                    >
+                      <span className={`h-8 w-1 rounded-full ${meta.dot}`} />
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm font-semibold">#{o.order_number}</span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ${meta.chip}`}
+                          >
+                            <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+                            {meta.label}
+                          </span>
+                          <span className="text-xs text-muted-foreground">· {timeAgo(o.created_at)}</span>
+                        </div>
+
+                        {stepIdx >= 0 && o.status !== "cancelled" && (
+                          <div className="mt-2 flex items-center gap-1">
+                            {STATUS_FLOW.map((_, i) => (
+                              <span
+                                key={i}
+                                className={`h-1 flex-1 rounded-full transition-all ${
+                                  i <= stepIdx ? meta.dot : "bg-muted"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-sm font-semibold tabular-nums">{fmtBDT(Number(o.total) || 0)}</div>
+                        <div className={`text-[11px] font-medium ${meta.tone}`}>
+                          {isPending ? "Tap to confirm" : "Open →"}
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+          </ul>
         )}
       </div>
+
 
       <div className="mt-6 rounded-2xl border bg-card p-5">
         <div className="mb-3 flex items-center gap-2">
