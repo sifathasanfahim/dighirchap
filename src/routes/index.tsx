@@ -363,3 +363,72 @@ function DishCard({ item }: { item: DishItem }) {
     </div>
   );
 }
+
+function RepeatOrder() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const add = useCart((s) => s.add);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  const last = useQuery({
+    enabled: !!userId,
+    queryKey: ["last-order", userId],
+    queryFn: async () => {
+      const { data: order } = await supabase
+        .from("orders")
+        .select("id, order_number, created_at")
+        .eq("customer_id", userId!)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!order) return null;
+      const { data: lines } = await supabase
+        .from("order_items")
+        .select("menu_item_id, name, price, qty, menu_items(image_url, available)")
+        .eq("order_id", order.id);
+      return { order, lines: lines ?? [] };
+    },
+  });
+
+  if (!userId || !last.data || last.data.lines.length === 0) return null;
+
+  const reorder = () => {
+    let added = 0;
+    for (const l of last.data!.lines) {
+      const mi = l.menu_items as { image_url: string | null; available: boolean } | null;
+      if (!l.menu_item_id || !mi?.available) continue;
+      for (let i = 0; i < l.qty; i++) {
+        add({ id: l.menu_item_id, name: l.name, price: l.price, image_url: mi.image_url ?? null });
+      }
+      added += l.qty;
+    }
+    if (added === 0) toast.error("Items no longer available");
+    else toast.success(`${added} items added to cart`);
+  };
+
+  const itemCount = last.data.lines.reduce((a, l) => a + l.qty, 0);
+  const preview = last.data.lines.slice(0, 3).map((l) => l.name).join(", ");
+
+  return (
+    <section className="mt-5">
+      <div className="flex items-center gap-3 rounded-2xl border bg-gradient-to-r from-accent/60 to-card p-4">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-2xl">🔁</div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold">Order again</div>
+          <div className="truncate text-xs text-muted-foreground">
+            {itemCount} item{itemCount > 1 ? "s" : ""} · {preview}
+          </div>
+        </div>
+        <button
+          onClick={reorder}
+          className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90"
+        >
+          Reorder
+        </button>
+      </div>
+    </section>
+  );
+}
+
