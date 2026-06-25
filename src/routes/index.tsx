@@ -207,38 +207,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Colorful featured category cards */}
-      {featuredCats.length > 0 && (
-        <section className="mt-6 grid grid-cols-2 gap-3">
-          {featuredCats.map((c, i) => {
-            const color = CARD_COLORS[i % CARD_COLORS.length];
-            return (
-              <button
-                key={c.id}
-                onClick={() => { setActiveCat(c.id); setShowAll(true); }}
-                className={cn(
-                  "group relative flex aspect-square flex-col justify-between overflow-hidden rounded-[2rem] p-4 text-left shadow-md transition-transform hover:scale-[1.02]",
-                  color.bg,
-                )}
-              >
-                <p className={cn("z-10 text-sm font-black leading-tight", color.text)}>{c.name}</p>
-                <span className={cn("z-10 text-[10px] font-bold uppercase tracking-wider", color.sub)}>
-                  Order now →
-                </span>
-                {c.image_url ? (
-                  <img
-                    src={c.image_url}
-                    alt={c.name}
-                    className="absolute -bottom-3 -right-3 h-24 w-24 rotate-6 object-cover transition-transform group-hover:rotate-12"
-                  />
-                ) : (
-                  <span className="absolute -bottom-2 -right-2 text-7xl opacity-60">🍽️</span>
-                )}
-              </button>
-            );
-          })}
-        </section>
-      )}
 
       {/* Top picks / category items */}
       <section className="mt-8">
