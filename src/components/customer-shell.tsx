@@ -1,8 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy } from "lucide-react";
+import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy, Coins } from "lucide-react";
 import type { ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+
 
 export function CustomerShell({ children }: { children: ReactNode }) {
   const count = useCart((s) => s.items.reduce((a, i) => a + i.qty, 0));
