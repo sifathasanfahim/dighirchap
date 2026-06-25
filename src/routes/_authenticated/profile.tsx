@@ -18,12 +18,6 @@ export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
 });
 
-const tierStyles: Record<string, string> = {
-  bronze: "bg-amber-100 text-amber-800",
-  silver: "bg-slate-200 text-slate-800",
-  gold: "bg-yellow-100 text-yellow-800",
-  platinum: "bg-violet-100 text-violet-800",
-};
 
 function ProfilePage() {
   const { userId } = Route.useRouteContext();
