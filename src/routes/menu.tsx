@@ -207,7 +207,7 @@ function DishCard({ item }: { item: Item }) {
 
   return (
     <article className="group cursor-pointer">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted mb-4">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted mb-4">
         {item.image_url ? (
           <img
             src={item.image_url}
