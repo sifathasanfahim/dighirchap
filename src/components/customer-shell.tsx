@@ -11,6 +11,19 @@ export function CustomerShell({ children }: { children: ReactNode }) {
   const count = useCart((s) => s.items.reduce((a, i) => a + i.qty, 0));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const coinsQ = useQuery({
+    queryKey: ["my-coins-pill"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("profiles").select("coins").eq("id", u.user.id).maybeSingle();
+      return data?.coins ?? 0;
+    },
+    staleTime: 30_000,
+  });
+
+
+
   const tabs: { to: string; icon: typeof Home; label: string; badge?: number }[] = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/menu", icon: UtensilsCrossed, label: "Menu" },
