@@ -6,6 +6,7 @@ import { CustomerShell } from "@/components/customer-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { smartScore } from "@/lib/smart-search";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
