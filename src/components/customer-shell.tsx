@@ -42,14 +42,25 @@ export function CustomerShell({ children }: { children: ReactNode }) {
             </div>
             <span className="text-lg font-bold tracking-tight">Dighir Chap</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {coinsQ.data !== null && coinsQ.data !== undefined && (
+              <Link
+                to="/profile"
+                className="group flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary transition-all hover:scale-105 hover:bg-primary/20"
+                title="Your coins"
+              >
+                <Coins className="h-3.5 w-3.5 animate-pulse" />
+                <span className="tabular-nums">{coinsQ.data}</span>
+              </Link>
+            )}
             <Link to="/complaints" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <LifeBuoy className="h-4 w-4" /> Help
             </Link>
-            <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link to="/orders" className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline">
               Track order
             </Link>
           </div>
+
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-4">{children}</main>
