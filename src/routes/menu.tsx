@@ -57,12 +57,14 @@ function MenuPage() {
   });
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (items.data ?? []).filter((i) => {
-      if (activeCat !== "all" && i.category_id !== activeCat) return false;
-      if (!q) return true;
-      return i.name.toLowerCase().includes(q) || (i.description ?? "").toLowerCase().includes(q);
-    });
+    const q = query.trim();
+    const list = (items.data ?? []).filter((i) => activeCat === "all" || i.category_id === activeCat);
+    if (!q) return list;
+    const scored = list
+      .map((i) => ({ i, s: smartScore(q, i.name, i.description) }))
+      .filter((x) => x.s >= 0.5)
+      .sort((a, b) => b.s - a.s);
+    return scored.map((x) => x.i);
   }, [items.data, query, activeCat]);
 
   const cats = categories.data ?? [];
