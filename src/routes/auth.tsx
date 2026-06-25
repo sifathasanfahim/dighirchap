@@ -51,11 +51,28 @@ function AuthPage() {
         if (error) throw error;
         toast.success("Account created!");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        // Allow rider login by ID (no @) — translate to internal rider email
+        const loginEmail = email.includes("@") ? email : `${email.trim().toLowerCase()}@rider.local`;
+        const { data: signed, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (error) throw error;
         toast.success("Welcome back!");
+        // Route riders to their portal automatically
+        const uid = signed.user?.id;
+        if (uid) {
+          const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+          const list = (roles ?? []).map((r) => r.role);
+          if (list.includes("rider")) {
+            navigate({ to: "/rider" });
+            return;
+          }
+          if (list.includes("owner") || list.includes("manager") || list.includes("cashier") || list.includes("marketing") || list.includes("rider_manager")) {
+            navigate({ to: "/admin" });
+            return;
+          }
+        }
       }
       navigate({ to: (redirectTo as never) ?? "/" });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
     } finally {
