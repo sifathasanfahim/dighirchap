@@ -33,6 +33,35 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
+function statusPriority(s: string) {
+  const order: Record<string, number> = {
+    pending: 0, confirmed: 1, preparing: 2, ready: 3,
+    out_for_delivery: 4, delivered: 5, cancelled: 6,
+  };
+  return order[s] ?? 99;
+}
+
+function statusStyle(s: string) {
+  switch (s) {
+    case "pending":
+      return { label: "New • Unconfirmed", row: "border-red-500 bg-red-50 dark:bg-red-950/30", badge: "bg-red-600 text-white", icon: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" };
+    case "confirmed":
+      return { label: "Confirmed", row: "border-green-500 bg-green-50 dark:bg-green-950/30", badge: "bg-green-600 text-white", icon: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" };
+    case "preparing":
+      return { label: "Preparing", row: "border-amber-500 bg-amber-50 dark:bg-amber-950/30", badge: "bg-amber-500 text-white", icon: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" };
+    case "ready":
+      return { label: "Ready", row: "border-blue-500 bg-blue-50 dark:bg-blue-950/30", badge: "bg-blue-600 text-white", icon: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" };
+    case "out_for_delivery":
+      return { label: "Out for delivery", row: "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30", badge: "bg-indigo-600 text-white", icon: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" };
+    case "delivered":
+      return { label: "Delivered", row: "border-muted bg-card", badge: "bg-muted text-muted-foreground", icon: "bg-muted text-muted-foreground" };
+    case "cancelled":
+      return { label: "Cancelled", row: "border-muted bg-muted/30 opacity-70", badge: "bg-destructive text-destructive-foreground", icon: "bg-muted text-muted-foreground" };
+    default:
+      return { label: s, row: "border-border", badge: "bg-muted text-foreground", icon: "bg-primary/10 text-primary" };
+  }
+}
+
 function AdminDashboard() {
   const qc = useQueryClient();
   const [preset, setPreset] = useState<Preset>("today");
@@ -176,26 +205,39 @@ function AdminDashboard() {
           <p className="text-sm text-muted-foreground">No orders yet.</p>
         ) : (
           <div className="space-y-2">
-            {liveOrders.data.map((o: any) => (
+            {[...liveOrders.data]
+              .sort((a: any, b: any) => statusPriority(a.status) - statusPriority(b.status))
+              .map((o: any) => {
+              const st = statusStyle(o.status);
+              return (
               <Link
                 key={o.id}
                 to="/admin/orders"
-                className="flex items-center justify-between rounded-xl border p-3 transition hover:bg-muted/50"
+                className={`flex items-center justify-between rounded-xl border-2 p-3 transition hover:bg-muted/50 ${st.row}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary">
+                  <div className={`grid h-9 w-9 place-items-center rounded-full ${st.icon}`}>
                     <ShoppingBag className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="font-medium">#{o.order_number}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">#{o.order_number}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${st.badge}`}>
+                        {st.label}
+                      </span>
+                      {o.status === "pending" && (
+                        <span className="h-2 w-2 animate-ping rounded-full bg-red-500" />
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(o.created_at).toLocaleTimeString()} • {o.status}
+                      {new Date(o.created_at).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
                 <div className="font-semibold">{fmtBDT(Number(o.total) || 0)}</div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
