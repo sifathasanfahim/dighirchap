@@ -34,10 +34,37 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
 }
 
 function AdminDashboard() {
+  const qc = useQueryClient();
   const [preset, setPreset] = useState<Preset>("today");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const range = useMemo(() => rangeFor(preset, from, to), [preset, from, to]);
+
+  const liveOrders = useQuery({
+    queryKey: ["admin-live-orders"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("orders")
+        .select("id, order_number, total, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    const ch = supabase
+      .channel("admin-dash-orders")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [qc]);
+
 
   const stats = useQuery({
     queryKey: ["admin-stats", range.from.toISOString(), range.to.toISOString()],
