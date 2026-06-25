@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Heart, Clock, Star } from "lucide-react";
+import { Heart, Clock, Star, Plus, Minus } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
 import { PopupBanner } from "@/components/popup-banner";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/lib/cart";
+import { sfx } from "@/lib/sounds";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
