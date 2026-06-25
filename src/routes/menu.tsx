@@ -271,6 +271,7 @@ function DishRow({ item }: { item: Item }) {
             <button
               onClick={() => {
                 add({ id: item.id, name: item.name, price: Number(item.price), image_url: item.image_url });
+                sfx.success();
                 toast.success(`${item.name} added`);
               }}
               className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs font-bold text-background shadow hover:bg-primary"
