@@ -350,10 +350,11 @@ export type Database = {
           coins_redeemed: number
           coupon_code: string | null
           created_at: string
-          customer_id: string
+          customer_id: string | null
           delivered_at: string | null
           delivery_fee: number
           discount: number
+          guest_name: string | null
           id: string
           lat: number | null
           lng: number | null
@@ -373,10 +374,11 @@ export type Database = {
           coins_redeemed?: number
           coupon_code?: string | null
           created_at?: string
-          customer_id: string
+          customer_id?: string | null
           delivered_at?: string | null
           delivery_fee?: number
           discount?: number
+          guest_name?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -396,10 +398,11 @@ export type Database = {
           coins_redeemed?: number
           coupon_code?: string | null
           created_at?: string
-          customer_id?: string
+          customer_id?: string | null
           delivered_at?: string | null
           delivery_fee?: number
           discount?: number
+          guest_name?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
