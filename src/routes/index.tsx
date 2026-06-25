@@ -284,3 +284,79 @@ function categoryEmoji(name: string): string {
   for (const [re, emoji] of map) if (re.test(n)) return emoji;
   return "🍽️";
 }
+
+type DishItem = {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string | null;
+};
+
+function DishCard({ item }: { item: DishItem }) {
+  const inCart = useCart((s) => s.items.find((c) => c.id === item.id));
+  const add = useCart((s) => s.add);
+  const setQty = useCart((s) => s.setQty);
+
+  const onAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    add({ id: item.id, name: item.name, price: Number(item.price), image_url: item.image_url });
+    sfx.success();
+    toast.success(`${item.name} added`);
+  };
+
+  return (
+    <div className="block overflow-hidden rounded-2xl border bg-card shadow-sm">
+      <div className="relative h-44 bg-muted">
+        {item.image_url ? (
+          <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full place-items-center text-3xl">🍗</div>
+        )}
+        <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-background/95 text-primary shadow">
+          <Heart className="h-3.5 w-3.5" />
+        </span>
+        <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-background/95 px-2 py-1 text-[11px] font-medium shadow">
+          <Clock className="h-3 w-3" /> 25 min
+        </span>
+      </div>
+      <div className="p-3">
+        <div className="truncate text-sm font-bold">{item.name}</div>
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> 4.8
+          </span>
+          <span className="text-xs font-bold">{fmtBDT(Number(item.price))}</span>
+        </div>
+        <div className="mt-2">
+          {inCart ? (
+            <div className="flex items-center justify-between rounded-full bg-foreground p-1 text-background">
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); sfx.tap(); setQty(item.id, inCart.qty - 1); }}
+                className="grid h-7 w-7 place-items-center rounded-full hover:bg-background/10"
+                aria-label="Decrease"
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </button>
+              <span className="text-xs font-bold">{inCart.qty} in cart</span>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); sfx.tap(); setQty(item.id, inCart.qty + 1); }}
+                className="grid h-7 w-7 place-items-center rounded-full hover:bg-background/10"
+                aria-label="Increase"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onAdd}
+              className="flex w-full items-center justify-center gap-1 rounded-full bg-foreground py-1.5 text-xs font-bold text-background shadow hover:bg-primary"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add to cart
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
