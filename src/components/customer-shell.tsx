@@ -1,12 +1,28 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy } from "lucide-react";
+import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy, Coins } from "lucide-react";
 import type { ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+
 
 export function CustomerShell({ children }: { children: ReactNode }) {
   const count = useCart((s) => s.items.reduce((a, i) => a + i.qty, 0));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const coinsQ = useQuery({
+    queryKey: ["my-coins-pill"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("profiles").select("coins").eq("id", u.user.id).maybeSingle();
+      return data?.coins ?? 0;
+    },
+    staleTime: 30_000,
+  });
+
+
 
   const tabs: { to: string; icon: typeof Home; label: string; badge?: number }[] = [
     { to: "/", icon: Home, label: "Home" },
@@ -26,14 +42,25 @@ export function CustomerShell({ children }: { children: ReactNode }) {
             </div>
             <span className="text-lg font-bold tracking-tight">Dighir Chap</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {coinsQ.data !== null && coinsQ.data !== undefined && (
+              <Link
+                to="/profile"
+                className="group flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary transition-all hover:scale-105 hover:bg-primary/20"
+                title="Your coins"
+              >
+                <Coins className="h-3.5 w-3.5 animate-pulse" />
+                <span className="tabular-nums">{coinsQ.data}</span>
+              </Link>
+            )}
             <Link to="/complaints" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <LifeBuoy className="h-4 w-4" /> Help
             </Link>
-            <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link to="/orders" className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline">
               Track order
             </Link>
           </div>
+
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-4">{children}</main>

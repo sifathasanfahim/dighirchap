@@ -179,6 +179,48 @@ export type Database = {
         }
         Relationships: []
       }
+      loyalty_tiers: {
+        Row: {
+          active: boolean
+          color: string
+          created_at: string
+          discount_pct: number
+          icon: string
+          id: string
+          min_spend: number
+          name: string
+          perks: string[]
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          discount_pct?: number
+          icon?: string
+          id?: string
+          min_spend?: number
+          name: string
+          perks?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          discount_pct?: number
+          icon?: string
+          id?: string
+          min_spend?: number
+          name?: string
+          perks?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           available: boolean
