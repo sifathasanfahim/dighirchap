@@ -302,27 +302,6 @@ function AdminDashboard() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print KOT"
-                          onClick={() => window.open(`/print/${o.id}?type=kitchen`, "_blank", "width=420,height=720")}
-                        >
-                          <ChefHat className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print Bill"
-                          onClick={() => window.open(`/print/${o.id}?type=invoice`, "_blank", "width=420,height=720")}
-                        >
-                          <Receipt className="h-4 w-4" />
-                        </Button>
-                      </div>
-
                       {!isDone && (
                         <div className="flex items-center gap-1.5">
                           {nextStatus && (
@@ -363,6 +342,28 @@ function AdminDashboard() {
                           )}
                         </div>
                       )}
+
+                      <div className="ml-2 flex items-center gap-1 border-l pl-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          title="Print KOT"
+                          onClick={() => window.open(`/print/${o.id}?type=kitchen`, "_blank", "width=420,height=720")}
+                        >
+                          <ChefHat className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          title="Print Bill"
+                          onClick={() => window.open(`/print/${o.id}?type=invoice`, "_blank", "width=420,height=720")}
+                        >
+                          <Receipt className="h-4 w-4" />
+                        </Button>
+                      </div>
+
                     </div>
                   </li>
                 );
