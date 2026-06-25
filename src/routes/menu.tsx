@@ -156,7 +156,7 @@ function MenuPage() {
             No dishes match &ldquo;{query}&rdquo;.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-12">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-12 xl:grid-cols-4">
             {filtered.map((item) => <DishCard key={item.id} item={item} />)}
           </div>
         )}
