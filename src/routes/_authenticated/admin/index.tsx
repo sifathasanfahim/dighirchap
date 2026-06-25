@@ -302,8 +302,8 @@ function AdminDashboard() {
                         )}
                       </div>
 
-                      {!isDone && (
-                        <div className="flex items-center gap-1.5">
+                      {!isDone ? (
+                        <div className="flex flex-nowrap items-center gap-1.5">
                           {nextStatus && (
                             <Button
                               size="sm"
@@ -341,30 +341,34 @@ function AdminDashboard() {
                             </Button>
                           )}
                         </div>
-                      )}
+                      ) : <div />}
 
-                      <div className="ml-2 flex items-center gap-1 border-l pl-2">
+                      <div className="flex flex-nowrap items-center gap-1 rounded-md border bg-muted/30 px-1 py-0.5">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print KOT"
+                          className="h-7 gap-1 px-2 text-[11px] font-medium"
+                          title="Print KOT (Kitchen)"
                           onClick={() => window.open(`/print/${o.id}?type=kitchen`, "_blank", "width=420,height=720")}
                         >
-                          <ChefHat className="h-4 w-4" />
+                          <ChefHat className="h-3.5 w-3.5" />
+                          KOT
                         </Button>
+                        <span className="h-4 w-px bg-border" />
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print Bill"
+                          className="h-7 gap-1 px-2 text-[11px] font-medium"
+                          title="Print Bill (Invoice)"
                           onClick={() => window.open(`/print/${o.id}?type=invoice`, "_blank", "width=420,height=720")}
                         >
-                          <Receipt className="h-4 w-4" />
+                          <Receipt className="h-3.5 w-3.5" />
+                          Bill
                         </Button>
                       </div>
 
                     </div>
+
                   </li>
                 );
               })}
