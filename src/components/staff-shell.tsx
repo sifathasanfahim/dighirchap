@@ -42,6 +42,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
   { to: "/admin/riders", label: "Riders", icon: Bike },
   { to: "/admin/loyalty", label: "Loyalty", icon: Coins },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell },
   { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
 
