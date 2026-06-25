@@ -6,6 +6,7 @@ import { CustomerShell } from "@/components/customer-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { smartScore } from "@/lib/smart-search";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
@@ -56,12 +57,14 @@ function MenuPage() {
   });
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (items.data ?? []).filter((i) => {
-      if (activeCat !== "all" && i.category_id !== activeCat) return false;
-      if (!q) return true;
-      return i.name.toLowerCase().includes(q) || (i.description ?? "").toLowerCase().includes(q);
-    });
+    const q = query.trim();
+    const list = (items.data ?? []).filter((i) => activeCat === "all" || i.category_id === activeCat);
+    if (!q) return list;
+    const scored = list
+      .map((i) => ({ i, s: smartScore(q, i.name, i.description) }))
+      .filter((x) => x.s >= 0.5)
+      .sort((a, b) => b.s - a.s);
+    return scored.map((x) => x.i);
   }, [items.data, query, activeCat]);
 
   const cats = categories.data ?? [];
@@ -108,7 +111,7 @@ function MenuPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search dishes…"
+            placeholder="Search… try 'chap', 'বিরিয়ানি', 'burgar'"
             className="w-full rounded-full border bg-card py-3 pl-11 pr-9 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
