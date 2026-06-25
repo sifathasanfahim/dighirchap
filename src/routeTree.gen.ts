@@ -23,6 +23,7 @@ import { Route as AuthenticatedRiderIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner/index'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedPrintIdRouteImport } from './routes/_authenticated/print.$id'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminRidersRouteImport } from './routes/_authenticated/admin/riders'
@@ -105,6 +106,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedPrintIdRoute = AuthenticatedPrintIdRouteImport.update({
+  id: '/print/$id',
+  path: '/print/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   id: '/orders/$id',
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/admin/riders': typeof AuthenticatedAdminRidersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/print/$id': typeof AuthenticatedPrintIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/admin/riders': typeof AuthenticatedAdminRidersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/print/$id': typeof AuthenticatedPrintIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/riders': typeof AuthenticatedAdminRidersRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/_authenticated/print/$id': typeof AuthenticatedPrintIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin/riders'
     | '/admin/settings'
     | '/orders/$id'
+    | '/print/$id'
     | '/admin/'
     | '/orders/'
     | '/owner/'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/riders'
     | '/admin/settings'
     | '/orders/$id'
+    | '/print/$id'
     | '/admin'
     | '/orders'
     | '/owner'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/riders'
     | '/_authenticated/admin/settings'
     | '/_authenticated/orders/$id'
+    | '/_authenticated/print/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/orders/'
     | '/_authenticated/owner/'
@@ -451,6 +463,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/print/$id': {
+      id: '/_authenticated/print/$id'
+      path: '/print/$id'
+      fullPath: '/print/$id'
+      preLoaderRoute: typeof AuthenticatedPrintIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/orders/$id': {
       id: '/_authenticated/orders/$id'
@@ -581,6 +600,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedComplaintsRoute: typeof AuthenticatedComplaintsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
+  AuthenticatedPrintIdRoute: typeof AuthenticatedPrintIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
   AuthenticatedRiderIndexRoute: typeof AuthenticatedRiderIndexRoute
@@ -592,6 +612,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedComplaintsRoute: AuthenticatedComplaintsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
+  AuthenticatedPrintIdRoute: AuthenticatedPrintIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
   AuthenticatedRiderIndexRoute: AuthenticatedRiderIndexRoute,
