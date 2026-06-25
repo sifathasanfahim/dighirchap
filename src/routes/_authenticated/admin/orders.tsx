@@ -251,6 +251,15 @@ function AdminOrders() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "kitchen")} title="Kitchen ticket (KOT)">
+                    <ChefHat className="h-3.5 w-3.5" /> KOT
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "invoice")} title="Customer invoice">
+                    <Receipt className="h-3.5 w-3.5" /> Bill
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "both")} title="Print both">
+                    <Printer className="h-3.5 w-3.5" />
+                  </Button>
                   <Button asChild variant="outline" size="sm" className="gap-1">
                     <Link to="/orders/$id" params={{ id: o.id }}>
                       <ExternalLink className="h-3.5 w-3.5" />
