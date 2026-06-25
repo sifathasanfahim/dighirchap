@@ -1,16 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, KeyRound } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { createRiderAccount } from "@/lib/admin-rider.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/riders")({
   component: AdminRiders,
@@ -18,28 +19,28 @@ export const Route = createFileRoute("/_authenticated/admin/riders")({
 
 function AdminRiders() {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ profile_id: "", vehicle: "" });
+  const [form, setForm] = useState({ rider_id: "", password: "", full_name: "", phone: "", vehicle: "" });
+  const [saving, setSaving] = useState(false);
+  const createRider = useServerFn(createRiderAccount);
 
   const riders = useQuery({
     queryKey: ["admin-riders"],
     queryFn: async () => (await supabase.from("riders").select("*, profiles(full_name, phone)").order("created_at", { ascending: false })).data ?? [],
   });
 
-  const customers = useQuery({
-    queryKey: ["all-profiles-for-rider"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, phone").order("full_name")).data ?? [],
-  });
-
-  const addRider = async () => {
-    if (!form.profile_id) return toast.error("Pick a profile");
-    const { error: rErr } = await supabase.from("riders").insert({ profile_id: form.profile_id, vehicle: form.vehicle });
-    if (rErr) return toast.error(rErr.message);
-    const { error: roleErr } = await supabase.from("user_roles").insert({ user_id: form.profile_id, role: "rider" });
-    if (roleErr && !roleErr.message.includes("duplicate")) toast.error(roleErr.message);
-    toast.success("Rider added");
-    setOpen(false);
-    setForm({ profile_id: "", vehicle: "" });
-    riders.refetch();
+  const submit = async () => {
+    setSaving(true);
+    try {
+      const res = await createRider({ data: form });
+      toast.success(`Rider created. Login ID: ${res.rider_id}`);
+      setOpen(false);
+      setForm({ rider_id: "", password: "", full_name: "", phone: "", vehicle: "" });
+      riders.refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggle = async (id: string, active: boolean) => {
@@ -48,7 +49,7 @@ function AdminRiders() {
   };
 
   const remove = async (id: string, profileId: string) => {
-    if (!confirm("Remove rider?")) return;
+    if (!confirm("Remove rider? This unassigns them from rider role.")) return;
     await supabase.from("riders").delete().eq("id", id);
     await supabase.from("user_roles").delete().eq("user_id", profileId).eq("role", "rider");
     riders.refetch();
@@ -56,25 +57,32 @@ function AdminRiders() {
 
   return (
     <StaffShell title="Riders">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild><Button className="mb-4"><Plus className="mr-2 h-4 w-4" /> Add rider</Button></DialogTrigger>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Add rider</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>Customer to promote</Label>
-              <Select value={form.profile_id} onValueChange={(v) => setForm({ ...form, profile_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select user" /></SelectTrigger>
-                <SelectContent>
-                  {customers.data?.map((p) => <SelectItem key={p.id} value={p.id}>{p.full_name ?? p.phone ?? p.id}</SelectItem>)}
-                </SelectContent>
-              </Select>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">Create a rider account with a login ID + password. The rider signs in on the normal login page and lands in the rider portal automatically.</p>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Add rider</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Add rider</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label>Rider login ID</Label>
+                <Input value={form.rider_id} onChange={(e) => setForm({ ...form, rider_id: e.target.value })} placeholder="e.g. rider01" />
+                <p className="mt-1 text-xs text-muted-foreground">Letters/numbers/._- only. Rider will sign in with this ID.</p>
+              </div>
+              <div>
+                <Label>Password</Label>
+                <Input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 6 characters" />
+              </div>
+              <div><Label>Full name</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
+              <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="01XXXXXXXXX" /></div>
+              <div><Label>Vehicle</Label><Input value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })} placeholder="Bike / Scooter" /></div>
+              <Button onClick={submit} className="w-full" disabled={saving}>
+                <KeyRound className="mr-2 h-4 w-4" /> {saving ? "Creating..." : "Create rider account"}
+              </Button>
             </div>
-            <div><Label>Vehicle</Label><Input value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })} placeholder="Bike / Scooter" /></div>
-            <Button onClick={addRider} className="w-full">Add</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <div className="overflow-hidden rounded-2xl border bg-card">
         <table className="w-full text-sm">
