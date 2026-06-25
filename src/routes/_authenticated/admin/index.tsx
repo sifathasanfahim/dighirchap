@@ -261,19 +261,23 @@ function AdminDashboard() {
                 const meta = statusMeta(o.status);
                 const stepIdx = STATUS_FLOW.indexOf(o.status as any);
                 const isPending = o.status === "pending";
+                const nextStatus = stepIdx >= 0 && stepIdx < STATUS_FLOW.length - 1 ? STATUS_FLOW[stepIdx + 1] : null;
+                const isDone = o.status === "delivered" || o.status === "cancelled";
+                const busy = updateStatus.isPending && updateStatus.variables?.id === o.id;
                 return (
                   <li key={o.id}>
-                    <Link
-                      to="/admin/orders"
-                      className={`group flex items-center gap-4 px-5 py-3 transition hover:bg-muted/40 ${
+                    <div
+                      className={`group flex flex-wrap items-center gap-4 px-5 py-3 transition hover:bg-muted/40 ${
                         isPending ? "bg-rose-50/40 dark:bg-rose-950/10" : ""
                       }`}
                     >
-                      <span className={`h-8 w-1 rounded-full ${meta.dot}`} />
+                      <span className={`h-10 w-1 rounded-full ${meta.dot}`} />
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm font-semibold">#{o.order_number}</span>
+                          <Link to="/admin/orders" className="font-mono text-sm font-semibold hover:underline">
+                            #{o.order_number}
+                          </Link>
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ${meta.chip}`}
                           >
@@ -281,6 +285,7 @@ function AdminDashboard() {
                             {meta.label}
                           </span>
                           <span className="text-xs text-muted-foreground">· {timeAgo(o.created_at)}</span>
+                          <span className="ml-auto text-sm font-semibold tabular-nums">{fmtBDT(Number(o.total) || 0)}</span>
                         </div>
 
                         {stepIdx >= 0 && o.status !== "cancelled" && (
@@ -297,19 +302,54 @@ function AdminDashboard() {
                         )}
                       </div>
 
-                      <div className="text-right">
-                        <div className="text-sm font-semibold tabular-nums">{fmtBDT(Number(o.total) || 0)}</div>
-                        <div className={`text-[11px] font-medium ${meta.tone}`}>
-                          {isPending ? "Tap to confirm" : "Open →"}
+                      {!isDone && (
+                        <div className="flex items-center gap-1.5">
+                          {nextStatus && (
+                            <Button
+                              size="sm"
+                              disabled={busy}
+                              onClick={() => updateStatus.mutate({ id: o.id, status: nextStatus })}
+                              className="h-8 gap-1"
+                            >
+                              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                              {statusMeta(nextStatus).label}
+                              <ChevronRight className="h-3.5 w-3.5 opacity-70" />
+                            </Button>
+                          )}
+                          <select
+                            value={o.status}
+                            disabled={busy}
+                            onChange={(e) => updateStatus.mutate({ id: o.id, status: e.target.value })}
+                            className="h-8 rounded-md border bg-background px-2 text-xs font-medium"
+                            title="Change status"
+                          >
+                            {STATUS_FLOW.map((st) => (
+                              <option key={st} value={st}>{statusMeta(st).label}</option>
+                            ))}
+                            <option value="cancelled">Cancel</option>
+                          </select>
+                          {isPending && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={busy}
+                              onClick={() => updateStatus.mutate({ id: o.id, status: "cancelled" })}
+                              className="h-8 w-8 p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                              title="Cancel order"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                      </div>
-                    </Link>
+                      )}
+                    </div>
                   </li>
                 );
               })}
           </ul>
         )}
       </div>
+
 
 
       <div className="mt-6 rounded-2xl border bg-card p-5">
