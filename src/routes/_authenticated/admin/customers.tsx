@@ -10,19 +10,70 @@ export const Route = createFileRoute("/_authenticated/admin/customers")({
   component: AdminCustomers,
 });
 
+type CustomerRow = {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  address: string | null;
+  tier: string | null;
+  coins: number | null;
+  lifetime_spend: number | null;
+  created_at: string | null;
+  is_guest?: boolean;
+  order_count?: number;
+};
+
 function AdminCustomers() {
   const customers = useQuery({
     queryKey: ["admin-customers"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("lifetime_spend", { ascending: false })
-        .limit(1000);
-      if (error) throw error;
-      return data;
+    queryFn: async (): Promise<CustomerRow[]> => {
+      const [profilesRes, guestRes] = await Promise.all([
+        supabase.from("profiles").select("*").order("lifetime_spend", { ascending: false }).limit(1000),
+        supabase
+          .from("orders")
+          .select("guest_name, phone, address, total, created_at")
+          .is("customer_id", null)
+          .not("phone", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(1000),
+      ]);
+      if (profilesRes.error) throw profilesRes.error;
+      if (guestRes.error) throw guestRes.error;
+
+      const profilePhones = new Set(
+        (profilesRes.data ?? []).map((p) => (p.phone ?? "").replace(/\s+/g, "")).filter(Boolean),
+      );
+
+      const guestMap = new Map<string, CustomerRow>();
+      for (const o of guestRes.data ?? []) {
+        const phone = (o.phone ?? "").replace(/\s+/g, "");
+        if (!phone || profilePhones.has(phone)) continue;
+        const existing = guestMap.get(phone);
+        if (existing) {
+          existing.lifetime_spend = (existing.lifetime_spend ?? 0) + Number(o.total ?? 0);
+          existing.order_count = (existing.order_count ?? 0) + 1;
+        } else {
+          guestMap.set(phone, {
+            id: `guest:${phone}`,
+            full_name: o.guest_name ?? "Guest",
+            phone: o.phone,
+            address: o.address,
+            tier: "guest",
+            coins: 0,
+            lifetime_spend: Number(o.total ?? 0),
+            created_at: o.created_at,
+            is_guest: true,
+            order_count: 1,
+          });
+        }
+      }
+
+      const all: CustomerRow[] = [...(profilesRes.data as CustomerRow[]), ...guestMap.values()];
+      all.sort((a, b) => (b.lifetime_spend ?? 0) - (a.lifetime_spend ?? 0));
+      return all;
     },
   });
+
 
   const handlePrint = () => {
     const rows = customers.data ?? [];
@@ -53,7 +104,7 @@ function AdminCustomers() {
             <td style="text-transform:capitalize">${escapeHtml(c.tier ?? "")}</td>
             <td class="num">${c.coins ?? 0}</td>
             <td class="num">${fmtBDT(c.lifetime_spend ?? 0)}</td>
-            <td>${fmtDate(c.created_at)}</td>
+            <td>${fmtDate(c.created_at ?? "")}</td>
           </tr>`).join("")}
         </tbody>
       </table>
@@ -91,15 +142,23 @@ function AdminCustomers() {
           <tbody>
             {customers.data?.map((c) => (
               <tr key={c.id} className="border-t">
-                <td className="px-4 py-3 font-medium">{c.full_name ?? "—"}</td>
+                <td className="px-4 py-3 font-medium">
+                  {c.full_name ?? "—"}
+                  {c.is_guest && (
+                    <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                      GUEST · {c.order_count} order{(c.order_count ?? 0) > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">{c.phone ?? "—"}</td>
                 <td className="px-4 py-3 max-w-xs text-muted-foreground">{c.address ?? "—"}</td>
                 <td className="px-4 py-3 capitalize">{c.tier}</td>
-                <td className="px-4 py-3 text-right">{c.coins}</td>
-                <td className="px-4 py-3 text-right font-semibold">{fmtBDT(c.lifetime_spend)}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(c.created_at)}</td>
+                <td className="px-4 py-3 text-right">{c.coins ?? 0}</td>
+                <td className="px-4 py-3 text-right font-semibold">{fmtBDT(c.lifetime_spend ?? 0)}</td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(c.created_at ?? "")}</td>
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>
