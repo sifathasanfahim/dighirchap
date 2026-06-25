@@ -104,7 +104,7 @@ function AdminCustomers() {
             <td style="text-transform:capitalize">${escapeHtml(c.tier ?? "")}</td>
             <td class="num">${c.coins ?? 0}</td>
             <td class="num">${fmtBDT(c.lifetime_spend ?? 0)}</td>
-            <td>${fmtDate(c.created_at)}</td>
+            <td>${fmtDate(c.created_at ?? "")}</td>
           </tr>`).join("")}
         </tbody>
       </table>
