@@ -176,26 +176,39 @@ function AdminDashboard() {
           <p className="text-sm text-muted-foreground">No orders yet.</p>
         ) : (
           <div className="space-y-2">
-            {liveOrders.data.map((o: any) => (
+            {[...liveOrders.data]
+              .sort((a: any, b: any) => statusPriority(a.status) - statusPriority(b.status))
+              .map((o: any) => {
+              const st = statusStyle(o.status);
+              return (
               <Link
                 key={o.id}
                 to="/admin/orders"
-                className="flex items-center justify-between rounded-xl border p-3 transition hover:bg-muted/50"
+                className={`flex items-center justify-between rounded-xl border-2 p-3 transition hover:bg-muted/50 ${st.row}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary">
+                  <div className={`grid h-9 w-9 place-items-center rounded-full ${st.icon}`}>
                     <ShoppingBag className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="font-medium">#{o.order_number}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">#{o.order_number}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${st.badge}`}>
+                        {st.label}
+                      </span>
+                      {o.status === "pending" && (
+                        <span className="h-2 w-2 animate-ping rounded-full bg-red-500" />
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(o.created_at).toLocaleTimeString()} • {o.status}
+                      {new Date(o.created_at).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
                 <div className="font-semibold">{fmtBDT(Number(o.total) || 0)}</div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
