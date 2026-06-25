@@ -111,7 +111,7 @@ function AuthPage() {
                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01XXXXXXXXX" required />
               </div>
               <div>
-                <Label htmlFor="address">Delivery address</Label>
+                <Label htmlFor="address">Address</Label>
                 <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="House, road, area" required />
               </div>
 
