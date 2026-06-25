@@ -2,11 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Plus, Star, Flame } from "lucide-react";
+import { toast } from "sonner";
 import { CustomerShell } from "@/components/customer-shell";
 import { PopupBanner } from "@/components/popup-banner";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
