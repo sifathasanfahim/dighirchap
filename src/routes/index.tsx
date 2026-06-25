@@ -155,7 +155,10 @@ function HomePage() {
         )}
       </section>
 
+      <RepeatOrder />
+
       {/* Category strip */}
+
       <section className="mt-6">
         <div className="-mx-4 overflow-x-auto px-4">
           <div className="flex gap-4 pb-1">
