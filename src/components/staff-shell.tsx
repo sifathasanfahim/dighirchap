@@ -58,12 +58,41 @@ export function StaffShell({
   variant?: "admin" | "owner" | "rider";
 }) {
   const [open, setOpen] = useState(false);
+  const [muted, setMuted] = useState(isSoundsMuted());
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const nav = variant === "owner" ? [...ownerNav, ...adminNav] : variant === "rider" ? [] : adminNav;
 
+  // New-order realtime alert for admin/owner
+  useEffect(() => {
+    if (variant === "rider") return;
+    ensureNotificationPermission();
+    const channel = supabase
+      .channel("admin-new-orders")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload: any) => {
+        const o = payload.new;
+        sfx.newOrder();
+        const title = `🛎️ New order ${o.order_number ?? ""}`.trim();
+        const body = `${fmtBDT(Number(o.total) || 0)} • ${o.status ?? "pending"}`;
+        toast.success(title, { description: body, duration: 8000 });
+        showBrowserNotification(title, body);
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [variant]);
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    setSoundsMuted(next);
+    if (!next) sfx.notify();
+  };
+
   const signOut = async () => {
+    sfx.click();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
