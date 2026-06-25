@@ -1,76 +1,63 @@
-## Dighir Chap ROS — MVP Plan
+## Goal
+4টা feature add করব: (1) CRM থেকে browser push notification, (2) নতুন order এলে admin dashboard-এ auto popup + sound, (3) dashboard-এ recent orders live feed, (4) website জুড়ে button click-এ modern UI sound।
 
-A thin slice across all 4 portals, built on the existing TanStack Start + Supabase stack. Email/password auth now (OTP later). Google Maps deferred until you add your custom-domain API key — order tracking will use status updates first.
+## Scope decision — Browser Notification
 
-### 1. Database (single migration)
+দুটো option আছে, আমি **Option A** suggest করছি (simpler, কোনো extra secret/key লাগবে না):
 
-Tables (all with RLS + `created_at`/`updated_at`):
-- `profiles` — name, phone, address, coins, tier (Bronze/Silver/Gold/Platinum)
-- `app_role` enum + `user_roles` (owner, manager, cashier, marketing, rider_manager, rider, customer) + `has_role()` security-definer
-- `categories` — name, image, sort_order, active
-- `menu_items` — category_id, name, description, price, image, available
-- `orders` — customer_id, rider_id, status (pending/confirmed/preparing/picked_up/delivered/cancelled), subtotal, delivery_fee, discount, coins_earned, coins_redeemed, payment_method (COD), address, lat/lng
-- `order_items` — order_id, menu_item_id, qty, price
-- `riders` — profile_id, vehicle, active, current_lat/lng
-- `coupons` — code, type (%/flat/free_delivery), value, min_order, expires_at, active
-- `complaints` — order_id, customer_id, message, status, resolution
-- `loyalty_rules` — coins_per_100, redeem_rate (singleton, admin editable)
-- `notifications` — user_id, title, body, read
+- **Option A — In-app + Tab notification (recommended)**: User যখন website-এ আছে (যেকোনো tab open থাকলে), browser-এর native `Notification` API দিয়ে notification pop up হবে + sound বাজবে। User permission একবার দিলেই হবে। কোনো VAPID key, service worker বা backend push server লাগবে না। Supabase Realtime দিয়ে instantly deliver হবে।
+- **Option B — Web Push (background)**: User website বন্ধ করলেও notification পাবে। এটার জন্য VAPID keys generate করতে হবে, service worker setup, push subscription storage, server-side push sender — সব মিলিয়ে বড় work।
 
-RLS pattern: customers see own data; staff roles via `has_role()`; riders see assigned orders.
+আমি Option A দিয়ে শুরু করছি। পরে দরকার হলে Option B add করা যাবে।
 
-### 2. Auth & roles
-- Email/password via existing Supabase client
-- Trigger auto-creates `profiles` + assigns `customer` role on signup
-- `/auth` public route; managed `_authenticated/` gate already in place
+## Implementation
 
-### 3. Routes (file-based)
+### 1. CRM → User browser notification
+- **DB**: `notifications` table already exists। শুধু একটা `broadcast` flag বা `target_user_id = null` ব্যবহার করব "send to all" এর জন্য। Realtime enable করব এই table-এ।
+- **Admin page** `/admin/notifications`: form দিয়ে title + body লিখে "Send to all" বা specific customer select করে push করা যাবে।
+- **Client side**: customer shell এ একটা hook subscribe করবে `notifications` table-এ; নতুন row এলে `new Notification(title, { body })` fire করবে + soft "ding" sound বাজাবে + toast দেখাবে।
+- প্রথমবার page load-এ permission request করব ("Allow notifications" prompt)।
 
-**Customer (public + `_authenticated/`)**
-- `/` — hero, categories, featured items
-- `/menu` — search, category filter
-- `/cart`, `/checkout` (COD)
-- `/orders`, `/orders/$id` (status timeline + reorder)
-- `/profile` (coins, tier, address)
+### 2. Admin dashboard — new order alert
+- `orders` table-এ Realtime subscribe করব admin dashboard-এ।
+- নতুন order INSERT হলে: 
+  - Top-right এ animated toast "🛎️ New order #1234 — ৳450"
+  - Notification sound বাজবে (different tone — "cha-ching" style)
+  - Browser notification (যদি permission থাকে)
+  - Recent orders list-এর top-এ যোগ হবে
 
-**Admin CRM** `_authenticated/admin/*` (owner/manager/cashier)
-- `/admin` dashboard, `/admin/orders` (realtime), `/admin/menu`, `/admin/customers`, `/admin/coupons`, `/admin/complaints`, `/admin/riders`, `/admin/loyalty`
+### 3. Dashboard recent orders panel
+- Existing dashboard-এ একটা নতুন section "Live orders (last 10)" — pending/preparing orders চলবে real-time।
 
-**Rider** `_authenticated/rider/*`
-- `/rider` assigned orders, status update, today's earnings
+### 4. UI sounds
+- ছোট utility `src/lib/sounds.ts` — Web Audio API দিয়ে synthesized tones (no asset files, lightweight):
+  - `click()` — soft tap
+  - `success()` — pleasant chime (add to cart, place order)
+  - `notify()` — gentle ding (new notification)
+  - `newOrder()` — distinctive chime (admin only)
+- A global helper hook + opt-out toggle in user profile (mute button)। Default on।
+- Major buttons এ wire করব: Add to cart, Place order, Login success ইত্যাদি।
 
-**Owner** `_authenticated/owner/*`
-- `/owner` analytics: sales, orders, top items, rider performance, customer growth
+## Files to touch
+- `src/lib/sounds.ts` (new) — Web Audio synth helpers
+- `src/lib/notifications.ts` (new) — permission helper + show()
+- `src/routes/_authenticated/admin/notifications.tsx` (new)
+- `src/routes/_authenticated/admin/index.tsx` — add live orders panel + realtime
+- `src/components/customer-shell.tsx` — subscribe to notifications, show toasts
+- `src/components/staff-shell.tsx` — admin notification permission, new-order subscriber
+- Migration — enable Realtime on `notifications` and `orders` tables; allow admin to insert broadcast notifications via RLS।
 
-### 4. Realtime & loyalty
-- Supabase Realtime on `orders` → admin board + customer tracking page
-- DB trigger awards coins on `status = delivered` using `loyalty_rules`
-- Tier auto-upgrades via SQL function (lifetime spend thresholds)
+## ASCII flow
+```text
+Admin form ─► insert notifications row
+                     │
+        Supabase Realtime broadcast
+                     │
+     ┌───────────────┴───────────────┐
+     ▼                               ▼
+Customer browser                Admin dashboard
+- Notification API              - Toast + sound
+- Toast + ding                  - List refresh
+```
 
-### 5. UI/UX
-- Foodpanda-inspired: warm coral primary (#E21B70-ish accent on light surface), rounded cards, bottom-nav on mobile
-- Mobile-first, shadcn components, sticky cart bar on customer
-- Distinct admin shell (sidebar) vs customer shell (top + bottom nav)
-
-### 6. Explicitly deferred (called out so you know)
-- Mobile OTP (needs Twilio secrets)
-- Google Maps live tracking (needs your own API key for custom domain) — orders will show status timeline + rider name/phone instead
-- Firebase push notifications (in-app notifications table only for now)
-- Per-role granular permission matrix (roles enforce access; fine-grained per-action perms later)
-- Marketing campaigns, segmentation, Multi-branch/franchise
-
-### Technical notes
-- Stack stays TanStack Start (not Next.js) — already configured, fully Supabase-compatible
-- Server-only logic via `createServerFn` with `requireSupabaseAuth`
-- Admin lists via Supabase from authenticated client (RLS enforces role gates)
-
-### Build order
-1. Migration (schema + RLS + triggers + seed loyalty_rules)
-2. Auth pages + role bootstrap
-3. Customer flow end-to-end (menu → checkout → order detail)
-4. Admin orders + menu + realtime
-5. Rider portal
-6. Owner analytics
-7. Coupons, complaints, loyalty redemption
-
-Confirm and I'll start with the migration.
+Confirm করলে implement শুরু করছি।
