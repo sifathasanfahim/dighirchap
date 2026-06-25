@@ -107,9 +107,10 @@ function AuthPage() {
             </>
           )}
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Label htmlFor="email">{mode === "signin" ? "Email or rider ID" : "Email"}</Label>
+            <Input id="email" type={mode === "signup" || mode === "forgot" ? "email" : "text"} value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
+
           {mode !== "forgot" && (
             <div>
               <div className="flex items-center justify-between">
