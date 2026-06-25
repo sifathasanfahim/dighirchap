@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fmtBDT } from "@/lib/format";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "Checkout — Dighir Chap" }] }),
