@@ -2,11 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Plus, Star, Flame } from "lucide-react";
+import { toast } from "sonner";
 import { CustomerShell } from "@/components/customer-shell";
 import { PopupBanner } from "@/components/popup-banner";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
 import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -231,38 +234,57 @@ function HomePage() {
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {(items.data ?? []).map((m) => (
-            <Link
+            <div
               key={m.id}
-              to="/menu"
-              className="group block overflow-hidden rounded-3xl border border-border/60 bg-card p-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="group relative block overflow-hidden rounded-3xl border border-border/60 bg-card p-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="relative mb-2 h-28 overflow-hidden rounded-2xl bg-muted">
-                {m.image_url ? (
-                  <img
-                    src={m.image_url}
-                    alt={m.name}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="grid h-full place-items-center text-4xl">🍗</div>
-                )}
-                {m.is_top_pick && (
-                  <span className="absolute left-2 top-2 inline-flex items-center gap-0.5 rounded-md bg-rose-600 px-1.5 py-0.5 text-[9px] font-black uppercase text-white">
-                    <Flame className="h-2.5 w-2.5" /> Hot
+              <Link
+                to="/menu"
+                className="block"
+              >
+                <div className="relative mb-2 h-28 overflow-hidden rounded-2xl bg-muted">
+                  {m.image_url ? (
+                    <img
+                      src={m.image_url}
+                      alt={m.name}
+                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center text-4xl">🍗</div>
+                  )}
+                  {m.is_top_pick && (
+                    <span className="absolute left-2 top-2 inline-flex items-center gap-0.5 rounded-md bg-rose-600 px-1.5 py-0.5 text-[9px] font-black uppercase text-white">
+                      <Flame className="h-2.5 w-2.5" /> Hot
+                    </span>
+                  )}
+                  <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 rounded-lg bg-background/95 px-1.5 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur">
+                    4.8 <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
                   </span>
-                )}
-                <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 rounded-lg bg-background/95 px-1.5 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur">
-                  4.8 <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
-                </span>
-              </div>
-              <p className="line-clamp-1 text-xs font-bold text-foreground">{m.name}</p>
+                </div>
+                <p className="line-clamp-1 text-xs font-bold text-foreground">{m.name}</p>
+              </Link>
               <div className="mt-2 flex items-end justify-between">
                 <span className="text-sm font-black tabular-nums">{fmtBDT(Number(m.price))}</span>
-                <span className="grid h-7 w-7 place-items-center rounded-xl bg-foreground text-background shadow-md transition-transform group-hover:scale-110">
-                  <Plus className="h-3.5 w-3.5" />
-                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    useCart.getState().add({
+                      id: m.id,
+                      name: m.name,
+                      price: Number(m.price),
+                      image_url: m.image_url,
+                    });
+                    toast.success(`${m.name} added to cart`);
+                  }}
+                  aria-label={`Add ${m.name} to cart`}
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-background shadow-md transition-transform active:scale-95 hover:scale-110"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
               </div>
-            </Link>
+            </div>
           ))}
           {items.data && items.data.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -272,6 +294,7 @@ function HomePage() {
             </div>
           ) : null}
         </div>
+
 
         {!showAll && !activeCat && (
           <div className="mt-6 flex justify-center">
