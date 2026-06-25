@@ -24,6 +24,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -40,7 +42,7 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -49,7 +51,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        const newUserId = signUpData.user?.id;
+        if (newUserId && address.trim()) {
+          await supabase.from("profiles").update({ address: address.trim() }).eq("id", newUserId);
+        }
         toast.success("Account created!");
+
       } else {
         const { data: signed, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -103,6 +110,11 @@ function AuthPage() {
                 <Label htmlFor="phone">Mobile</Label>
                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01XXXXXXXXX" required />
               </div>
+              <div>
+                <Label htmlFor="address">Delivery address</Label>
+                <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="House, road, area" required />
+              </div>
+
             </>
           )}
           <div>
