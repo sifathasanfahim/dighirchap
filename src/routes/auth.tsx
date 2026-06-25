@@ -42,7 +42,7 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -51,7 +51,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        const newUserId = signUpData.user?.id;
+        if (newUserId && address.trim()) {
+          await supabase.from("profiles").update({ address: address.trim() }).eq("id", newUserId);
+        }
         toast.success("Account created!");
+
       } else {
         const { data: signed, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
