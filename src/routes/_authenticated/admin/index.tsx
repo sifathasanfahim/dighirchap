@@ -39,7 +39,7 @@ const STATUS_FLOW = ["pending", "confirmed", "preparing", "ready", "picked_up", 
 function statusPriority(s: string) {
   const order: Record<string, number> = {
     pending: 0, confirmed: 1, preparing: 2, ready: 3,
-    out_for_delivery: 4, delivered: 5, cancelled: 6,
+    picked_up: 4, delivered: 5, cancelled: 6,
   };
   return order[s] ?? 99;
 }
