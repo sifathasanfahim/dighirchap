@@ -146,6 +146,13 @@ export function StaffShell({
             <MenuIcon className="h-5 w-5" />
           </button>
           <h1 className="text-base font-semibold">{title}</h1>
+          <button
+            onClick={toggleMute}
+            title={muted ? "Unmute UI sounds" : "Mute UI sounds"}
+            className="ml-auto rounded-md p-2 text-muted-foreground hover:bg-muted"
+          >
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
