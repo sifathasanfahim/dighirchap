@@ -51,10 +51,9 @@ function AuthPage() {
         if (error) throw error;
         toast.success("Account created!");
       } else {
-        // Allow rider login by ID (no @) — translate to internal rider email
-        const loginEmail = email.includes("@") ? email : `${email.trim().toLowerCase()}@rider.local`;
-        const { data: signed, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+        const { data: signed, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
         toast.success("Welcome back!");
         // Route riders to their portal automatically
         const uid = signed.user?.id;
@@ -107,9 +106,10 @@ function AuthPage() {
             </>
           )}
           <div>
-            <Label htmlFor="email">{mode === "signin" ? "Email or rider ID" : "Email"}</Label>
-            <Input id="email" type={mode === "signup" || mode === "forgot" ? "email" : "text"} value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
+
 
           {mode !== "forgot" && (
             <div>
