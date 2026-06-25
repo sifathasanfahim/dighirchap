@@ -54,7 +54,7 @@ function statusMeta(s: string) {
       return { label: "Preparing", tone: "text-amber-600", dot: "bg-amber-500", chip: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900" };
     case "ready":
       return { label: "Ready", tone: "text-sky-600", dot: "bg-sky-500", chip: "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900" };
-    case "out_for_delivery":
+    case "picked_up":
       return { label: "On the way", tone: "text-indigo-600", dot: "bg-indigo-500", chip: "bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900" };
     case "delivered":
       return { label: "Delivered", tone: "text-muted-foreground", dot: "bg-muted-foreground/60", chip: "bg-muted text-muted-foreground ring-border" };
