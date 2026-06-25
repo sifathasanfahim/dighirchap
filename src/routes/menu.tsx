@@ -111,7 +111,7 @@ function MenuPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search dishes…"
+            placeholder="Search… try 'chap', 'বিরিয়ানি', 'burgar'"
             className="w-full rounded-full border bg-card py-3 pl-11 pr-9 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
