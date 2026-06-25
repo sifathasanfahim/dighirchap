@@ -33,6 +33,35 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
+function statusPriority(s: string) {
+  const order: Record<string, number> = {
+    pending: 0, confirmed: 1, preparing: 2, ready: 3,
+    out_for_delivery: 4, delivered: 5, cancelled: 6,
+  };
+  return order[s] ?? 99;
+}
+
+function statusStyle(s: string) {
+  switch (s) {
+    case "pending":
+      return { label: "New • Unconfirmed", row: "border-red-500 bg-red-50 dark:bg-red-950/30", badge: "bg-red-600 text-white", icon: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" };
+    case "confirmed":
+      return { label: "Confirmed", row: "border-green-500 bg-green-50 dark:bg-green-950/30", badge: "bg-green-600 text-white", icon: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" };
+    case "preparing":
+      return { label: "Preparing", row: "border-amber-500 bg-amber-50 dark:bg-amber-950/30", badge: "bg-amber-500 text-white", icon: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" };
+    case "ready":
+      return { label: "Ready", row: "border-blue-500 bg-blue-50 dark:bg-blue-950/30", badge: "bg-blue-600 text-white", icon: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" };
+    case "out_for_delivery":
+      return { label: "Out for delivery", row: "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30", badge: "bg-indigo-600 text-white", icon: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" };
+    case "delivered":
+      return { label: "Delivered", row: "border-muted bg-card", badge: "bg-muted text-muted-foreground", icon: "bg-muted text-muted-foreground" };
+    case "cancelled":
+      return { label: "Cancelled", row: "border-muted bg-muted/30 opacity-70", badge: "bg-destructive text-destructive-foreground", icon: "bg-muted text-muted-foreground" };
+    default:
+      return { label: s, row: "border-border", badge: "bg-muted text-foreground", icon: "bg-primary/10 text-primary" };
+  }
+}
+
 function AdminDashboard() {
   const qc = useQueryClient();
   const [preset, setPreset] = useState<Preset>("today");
