@@ -252,7 +252,7 @@ function DishRow({ item }: { item: Item }) {
           {inCart ? (
             <div className="flex items-center gap-1.5 rounded-full bg-foreground p-0.5 text-background">
               <button
-                onClick={() => setQty(item.id, inCart.qty - 1)}
+                onClick={() => { sfx.tap(); setQty(item.id, inCart.qty - 1); }}
                 className="grid h-6 w-6 place-items-center rounded-full hover:bg-background/10"
                 aria-label="Decrease"
               >
@@ -260,7 +260,7 @@ function DishRow({ item }: { item: Item }) {
               </button>
               <span className="min-w-[1ch] text-center text-xs font-bold">{inCart.qty}</span>
               <button
-                onClick={() => setQty(item.id, inCart.qty + 1)}
+                onClick={() => { sfx.tap(); setQty(item.id, inCart.qty + 1); }}
                 className="grid h-6 w-6 place-items-center rounded-full hover:bg-background/10"
                 aria-label="Increase"
               >
