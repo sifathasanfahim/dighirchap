@@ -21,9 +21,6 @@ function AdminLoyalty() {
   const qc = useQueryClient();
   const [coins, setCoins] = useState("5");
   const [redeem, setRedeem] = useState("1");
-  const [silver, setSilver] = useState("5000");
-  const [gold, setGold] = useState("20000");
-  const [platinum, setPlatinum] = useState("50000");
 
   const rules = useQuery({
     queryKey: ["loyalty-rules"],
