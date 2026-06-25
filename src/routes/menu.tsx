@@ -156,7 +156,7 @@ function MenuPage() {
             No dishes match &ldquo;{query}&rdquo;.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-12 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-12 lg:grid-cols-4">
             {filtered.map((item) => <DishCard key={item.id} item={item} />)}
           </div>
         )}
@@ -207,7 +207,7 @@ function DishCard({ item }: { item: Item }) {
 
   return (
     <article className="group cursor-pointer">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted mb-4">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted mb-4">
         {item.image_url ? (
           <img
             src={item.image_url}
