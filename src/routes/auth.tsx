@@ -67,12 +67,13 @@ function AuthPage() {
         if (uid) {
           const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
           const list = (roles ?? []).map((r) => r.role);
-          if (list.includes("rider")) {
-            navigate({ to: "/rider" });
-            return;
-          }
+          // Staff/owner takes priority over rider (a user can hold both roles)
           if (list.includes("owner") || list.includes("manager") || list.includes("cashier") || list.includes("marketing") || list.includes("rider_manager")) {
             navigate({ to: "/admin" });
+            return;
+          }
+          if (list.includes("rider")) {
+            navigate({ to: "/rider" });
             return;
           }
         }
