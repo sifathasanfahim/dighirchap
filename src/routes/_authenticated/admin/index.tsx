@@ -107,6 +107,19 @@ function AdminDashboard() {
     };
   }, [qc]);
 
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Order moved to ${statusMeta(v.status).label}`);
+      qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to update"),
+  });
+
+
 
   const stats = useQuery({
     queryKey: ["admin-stats", range.from.toISOString(), range.to.toISOString()],
