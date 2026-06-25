@@ -39,9 +39,6 @@ function AdminLoyalty() {
     if (rules.data) {
       setCoins(String(rules.data.coins_per_100));
       setRedeem(String(rules.data.redeem_rate));
-      setSilver(String(rules.data.silver_threshold));
-      setGold(String(rules.data.gold_threshold));
-      setPlatinum(String(rules.data.platinum_threshold));
     }
   }, [rules.data]);
 
@@ -49,9 +46,6 @@ function AdminLoyalty() {
     const { error } = await supabase.from("loyalty_rules").update({
       coins_per_100: Number(coins),
       redeem_rate: Number(redeem),
-      silver_threshold: Number(silver),
-      gold_threshold: Number(gold),
-      platinum_threshold: Number(platinum),
     }).eq("id", 1);
     if (error) toast.error(error.message);
     else toast.success("Saved (owner only)");
