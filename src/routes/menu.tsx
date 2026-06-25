@@ -8,6 +8,7 @@ import { fmtBDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sounds";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({
@@ -251,7 +252,7 @@ function DishRow({ item }: { item: Item }) {
           {inCart ? (
             <div className="flex items-center gap-1.5 rounded-full bg-foreground p-0.5 text-background">
               <button
-                onClick={() => setQty(item.id, inCart.qty - 1)}
+                onClick={() => { sfx.tap(); setQty(item.id, inCart.qty - 1); }}
                 className="grid h-6 w-6 place-items-center rounded-full hover:bg-background/10"
                 aria-label="Decrease"
               >
@@ -259,7 +260,7 @@ function DishRow({ item }: { item: Item }) {
               </button>
               <span className="min-w-[1ch] text-center text-xs font-bold">{inCart.qty}</span>
               <button
-                onClick={() => setQty(item.id, inCart.qty + 1)}
+                onClick={() => { sfx.tap(); setQty(item.id, inCart.qty + 1); }}
                 className="grid h-6 w-6 place-items-center rounded-full hover:bg-background/10"
                 aria-label="Increase"
               >
@@ -270,6 +271,7 @@ function DishRow({ item }: { item: Item }) {
             <button
               onClick={() => {
                 add({ id: item.id, name: item.name, price: Number(item.price), image_url: item.image_url });
+                sfx.success();
                 toast.success(`${item.name} added`);
               }}
               className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs font-bold text-background shadow hover:bg-primary"

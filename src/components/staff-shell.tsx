@@ -13,10 +13,17 @@ import {
   Image as ImageIcon,
   Menu as MenuIcon,
   Settings as SettingsIcon,
+  Bell,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
+import { sfx, setSoundsMuted, isSoundsMuted } from "@/lib/sounds";
+import { toast } from "sonner";
+import { fmtBDT } from "@/lib/format";
 
 interface NavItem {
   to: string;
@@ -35,6 +42,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/complaints", label: "Complaints", icon: MessageSquareWarning },
   { to: "/admin/riders", label: "Riders", icon: Bike },
   { to: "/admin/loyalty", label: "Loyalty", icon: Coins },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell },
   { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -50,12 +58,41 @@ export function StaffShell({
   variant?: "admin" | "owner" | "rider";
 }) {
   const [open, setOpen] = useState(false);
+  const [muted, setMuted] = useState(isSoundsMuted());
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const nav = variant === "owner" ? [...ownerNav, ...adminNav] : variant === "rider" ? [] : adminNav;
 
+  // New-order realtime alert for admin/owner
+  useEffect(() => {
+    if (variant === "rider") return;
+    ensureNotificationPermission();
+    const channel = supabase
+      .channel("admin-new-orders")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload: any) => {
+        const o = payload.new;
+        sfx.newOrder();
+        const title = `🛎️ New order ${o.order_number ?? ""}`.trim();
+        const body = `${fmtBDT(Number(o.total) || 0)} • ${o.status ?? "pending"}`;
+        toast.success(title, { description: body, duration: 8000 });
+        showBrowserNotification(title, body);
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [variant]);
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    setSoundsMuted(next);
+    if (!next) sfx.notify();
+  };
+
   const signOut = async () => {
+    sfx.click();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
@@ -109,6 +146,13 @@ export function StaffShell({
             <MenuIcon className="h-5 w-5" />
           </button>
           <h1 className="text-base font-semibold">{title}</h1>
+          <button
+            onClick={toggleMute}
+            title={muted ? "Unmute UI sounds" : "Mute UI sounds"}
+            className="ml-auto rounded-md p-2 text-muted-foreground hover:bg-muted"
+          >
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>

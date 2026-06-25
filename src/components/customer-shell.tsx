@@ -1,10 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy, Coins } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
+import { sfx } from "@/lib/sounds";
 
 
 export function CustomerShell({ children }: { children: ReactNode }) {
@@ -21,6 +24,35 @@ export function CustomerShell({ children }: { children: ReactNode }) {
     },
     staleTime: 30_000,
   });
+  useEffect(() => {
+    ensureNotificationPermission();
+    let cancelled = false;
+    const setup = async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (cancelled || !u.user) return;
+      const uid = u.user.id;
+      const channel = supabase
+        .channel("user-notifications")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications" },
+          (payload: any) => {
+            const n = payload.new;
+            if (!n.is_broadcast && n.user_id !== uid) return;
+            sfx.notify();
+            toast(n.title, { description: n.body ?? undefined, duration: 8000 });
+            showBrowserNotification(n.title, n.body ?? undefined);
+          },
+        )
+        .subscribe();
+      return () => supabase.removeChannel(channel);
+    };
+    const cleanup = setup();
+    return () => {
+      cancelled = true;
+      cleanup.then((fn) => fn?.());
+    };
+  }, []);
 
 
 

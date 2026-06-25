@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { ShoppingBag, DollarSign, Users, Bike, TrendingUp } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag, DollarSign, Users, Bike, TrendingUp, Radio } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
@@ -34,10 +34,37 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
 }
 
 function AdminDashboard() {
+  const qc = useQueryClient();
   const [preset, setPreset] = useState<Preset>("today");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const range = useMemo(() => rangeFor(preset, from, to), [preset, from, to]);
+
+  const liveOrders = useQuery({
+    queryKey: ["admin-live-orders"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("orders")
+        .select("id, order_number, total, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    const ch = supabase
+      .channel("admin-dash-orders")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [qc]);
+
 
   const stats = useQuery({
     queryKey: ["admin-stats", range.from.toISOString(), range.to.toISOString()],
@@ -132,6 +159,45 @@ function AdminDashboard() {
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-6 rounded-2xl border bg-card p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Radio className="h-4 w-4 animate-pulse text-green-500" />
+            <h2 className="font-semibold">Live orders</h2>
+            <span className="text-xs text-muted-foreground">(auto-updates)</span>
+          </div>
+          <Link to="/admin/orders" className="text-xs text-primary hover:underline">View all →</Link>
+        </div>
+        {liveOrders.isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : !liveOrders.data?.length ? (
+          <p className="text-sm text-muted-foreground">No orders yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {liveOrders.data.map((o: any) => (
+              <Link
+                key={o.id}
+                to="/admin/orders"
+                className="flex items-center justify-between rounded-xl border p-3 transition hover:bg-muted/50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary">
+                    <ShoppingBag className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="font-medium">#{o.order_number}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(o.created_at).toLocaleTimeString()} • {o.status}
+                    </div>
+                  </div>
+                </div>
+                <div className="font-semibold">{fmtBDT(Number(o.total) || 0)}</div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-6 rounded-2xl border bg-card p-5">
