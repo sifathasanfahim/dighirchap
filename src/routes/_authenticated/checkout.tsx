@@ -81,9 +81,11 @@ function CheckoutPage() {
         await supabase.from("profiles").update({ coins: (profile.data?.coins ?? 0) - redeemCoins }).eq("id", userId);
       }
       clear();
+      sfx.success();
       toast.success("Order placed!");
       navigate({ to: "/orders/$id", params: { id: order.id } });
     } catch (e) {
+      sfx.error();
       toast.error(e instanceof Error ? e.message : "Failed to place order");
     } finally {
       setSubmitting(false);
