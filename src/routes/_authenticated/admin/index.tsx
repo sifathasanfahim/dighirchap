@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, DollarSign, Users, Bike, TrendingUp, Radio, Check, ChevronRight, X, Loader2 } from "lucide-react";
+import { ShoppingBag, DollarSign, Users, Bike, TrendingUp, Radio, Check, ChevronRight, X, Loader2, ChefHat, Receipt } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
@@ -300,6 +300,27 @@ function AdminDashboard() {
                             ))}
                           </div>
                         )}
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          title="Print KOT"
+                          onClick={() => window.open(`/print/${o.id}?type=kitchen`, "_blank", "width=420,height=720")}
+                        >
+                          <ChefHat className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          title="Print Bill"
+                          onClick={() => window.open(`/print/${o.id}?type=invoice`, "_blank", "width=420,height=720")}
+                        >
+                          <Receipt className="h-4 w-4" />
+                        </Button>
                       </div>
 
                       {!isDone && (
