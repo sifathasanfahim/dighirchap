@@ -162,6 +162,45 @@ function AdminDashboard() {
       </div>
 
       <div className="mt-6 rounded-2xl border bg-card p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Radio className="h-4 w-4 animate-pulse text-green-500" />
+            <h2 className="font-semibold">Live orders</h2>
+            <span className="text-xs text-muted-foreground">(auto-updates)</span>
+          </div>
+          <Link to="/admin/orders" className="text-xs text-primary hover:underline">View all →</Link>
+        </div>
+        {liveOrders.isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : !liveOrders.data?.length ? (
+          <p className="text-sm text-muted-foreground">No orders yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {liveOrders.data.map((o: any) => (
+              <Link
+                key={o.id}
+                to="/admin/orders"
+                className="flex items-center justify-between rounded-xl border p-3 transition hover:bg-muted/50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary">
+                    <ShoppingBag className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="font-medium">#{o.order_number}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(o.created_at).toLocaleTimeString()} • {o.status}
+                    </div>
+                  </div>
+                </div>
+                <div className="font-semibold">{fmtBDT(Number(o.total) || 0)}</div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 rounded-2xl border bg-card p-5">
         <div className="mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           <h2 className="font-semibold">Daily breakdown</h2>
