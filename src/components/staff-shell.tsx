@@ -13,10 +13,17 @@ import {
   Image as ImageIcon,
   Menu as MenuIcon,
   Settings as SettingsIcon,
+  Bell,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
+import { sfx, setSoundsMuted, isSoundsMuted } from "@/lib/sounds";
+import { toast } from "sonner";
+import { fmtBDT } from "@/lib/format";
 
 interface NavItem {
   to: string;
