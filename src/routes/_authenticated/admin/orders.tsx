@@ -222,50 +222,53 @@ function AdminOrders() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 border-t p-3 sm:flex-row sm:items-center">
-                  <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
-                    <SelectTrigger className={cn("h-9 flex-1 text-xs font-medium ring-2", meta.ring)}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUSES.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          <span className="flex items-center gap-2">
-                            <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_META[s].dot)} />
-                            {STATUS_META[s].label}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={o.rider_id ?? ""} onValueChange={(v) => assignRider(o.id, v)}>
-                    <SelectTrigger className="h-9 flex-1 text-xs">
-                      <Bike className="mr-1.5 h-3.5 w-3.5" />
-                      <SelectValue placeholder="Assign rider" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {riders.data?.map((r: any) => (
-                        <SelectItem key={r.id} value={r.id}>
-                          {r.profiles?.full_name ?? r.id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "kitchen")} title="Kitchen ticket (KOT)">
-                    <ChefHat className="h-3.5 w-3.5" /> KOT
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "invoice")} title="Customer invoice">
-                    <Receipt className="h-3.5 w-3.5" /> Bill
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "both")} title="Print both">
-                    <Printer className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button asChild variant="outline" size="sm" className="gap-1">
-                    <Link to="/orders/$id" params={{ id: o.id }}>
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      View
-                    </Link>
-                  </Button>
+                <div className="flex flex-col gap-2 border-t p-3">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
+                      <SelectTrigger className={cn("h-9 text-xs font-medium ring-2", meta.ring)}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            <span className="flex items-center gap-2">
+                              <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_META[s].dot)} />
+                              {STATUS_META[s].label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={o.rider_id ?? ""} onValueChange={(v) => assignRider(o.id, v)}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <Bike className="mr-1.5 h-3.5 w-3.5" />
+                        <SelectValue placeholder="Assign rider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {riders.data?.map((r: any) => (
+                          <SelectItem key={r.id} value={r.id}>
+                            {r.profiles?.full_name ?? r.id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "kitchen")} title="Kitchen ticket (KOT)">
+                      <ChefHat className="h-3.5 w-3.5" /> <span className="hidden sm:inline">KOT</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "invoice")} title="Customer invoice">
+                      <Receipt className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Bill</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-1" onClick={() => openPrint(o.id, "both")} title="Print both">
+                      <Printer className="h-3.5 w-3.5" /> <span className="hidden sm:inline">All</span>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="gap-1">
+                      <Link to="/orders/$id" params={{ id: o.id }}>
+                        <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">View</span>
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             );
