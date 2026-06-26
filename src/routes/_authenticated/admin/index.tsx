@@ -34,46 +34,6 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
-const STATUS_FLOW = ["pending", "preparing", "picked_up", "delivered"] as const;
-
-function statusPriority(s: string) {
-  const order: Record<string, number> = {
-    pending: 0, confirmed: 1, preparing: 1, ready: 2,
-    picked_up: 2, delivered: 3, cancelled: 4,
-  };
-  return order[s] ?? 99;
-}
-
-function statusMeta(s: string) {
-  switch (s) {
-    case "pending":
-      return { label: "New", tone: "text-rose-600", dot: "bg-rose-500", chip: "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-900" };
-    case "confirmed":
-      return { label: "Confirmed", tone: "text-emerald-600", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900" };
-    case "preparing":
-      return { label: "Preparing", tone: "text-amber-600", dot: "bg-amber-500", chip: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900" };
-    case "ready":
-      return { label: "Ready", tone: "text-sky-600", dot: "bg-sky-500", chip: "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900" };
-    case "picked_up":
-      return { label: "On the way", tone: "text-indigo-600", dot: "bg-indigo-500", chip: "bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900" };
-    case "delivered":
-      return { label: "Delivered", tone: "text-muted-foreground", dot: "bg-muted-foreground/60", chip: "bg-muted text-muted-foreground ring-border" };
-    case "cancelled":
-      return { label: "Cancelled", tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border line-through" };
-    default:
-      return { label: s, tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border" };
-  }
-}
-
-function timeAgo(iso: string) {
-  const diff = Math.max(0, Date.now() - new Date(iso).getTime());
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
 
 function AdminDashboard() {
   const qc = useQueryClient();
