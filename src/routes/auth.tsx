@@ -43,6 +43,10 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "forgot") {
+        if (isPhone(email)) {
+          toast.error("Password reset requires an email address.");
+          return;
+        }
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
@@ -51,13 +55,15 @@ function AuthPage() {
         setMode("signin");
         return;
       }
+      const loginEmail = toEmail(email);
+      const phoneForProfile = isPhone(email) ? email.replace(/\D/g, "") : phone;
       if (mode === "signup") {
         const { data: signUpData, error } = await supabase.auth.signUp({
-          email,
+          email: loginEmail,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: name, phone },
+            data: { full_name: name, phone: phoneForProfile },
           },
         });
         if (error) throw error;
@@ -68,7 +74,7 @@ function AuthPage() {
         toast.success("Account created!");
 
       } else {
-        const { data: signed, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: signed, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (error) throw error;
 
         toast.success("Welcome back!");
