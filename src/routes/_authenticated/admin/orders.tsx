@@ -114,8 +114,9 @@ function AdminOrders() {
   const tabs: { id: OrderStatus | "all" | "active"; label: string }[] = [
     { id: "active", label: "Active" },
     { id: "all", label: "All" },
-    ...STATUSES.map((s) => ({ id: s, label: STATUS_META[s].label })),
+    { id: "cancelled", label: STATUS_META.cancelled.label },
   ];
+
 
   return (
     <StaffShell title="Orders">
