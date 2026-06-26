@@ -45,6 +45,34 @@ function AdminBanners() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ ...empty });
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
+    if (file.size > 2 * 1024 * 1024) return toast.error("Image is too large. Max 2 MB.");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `banners/${crypto.randomUUID()}.${ext}`;
+      const up = await supabase.storage.from("menu-images").upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      const signed = await supabase.storage
+        .from("menu-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signed.error) throw signed.error;
+      setForm((f) => ({ ...f, image_url: signed.data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   const banners = useQuery({
     queryKey: ["admin-banners"],
