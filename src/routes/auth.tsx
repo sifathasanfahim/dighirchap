@@ -135,8 +135,8 @@ function AuthPage() {
             </>
           )}
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Label htmlFor="email">{mode === "forgot" ? "Email" : "Email or mobile number"}</Label>
+            <Input id="email" type="text" inputMode={mode === "forgot" ? "email" : "text"} value={email} onChange={(e) => setEmail(e.target.value)} placeholder={mode === "forgot" ? "you@example.com" : "you@example.com or 01XXXXXXXXX"} required />
           </div>
 
 
