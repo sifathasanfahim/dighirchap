@@ -79,13 +79,20 @@ function AdminOrders() {
     else toast.success("Rider assigned");
   };
 
+  const normalizeStatus = (s: string): OrderStatus => {
+    if (s === "confirmed") return "preparing";
+    if (s === "ready") return "picked_up";
+    return s as OrderStatus;
+  };
+
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: 0, active: 0 };
     STATUSES.forEach((s) => (c[s] = 0));
     (orders.data ?? []).forEach((o: any) => {
+      const st = normalizeStatus(o.status);
       c.all++;
-      c[o.status] = (c[o.status] ?? 0) + 1;
-      if (!["delivered", "cancelled"].includes(o.status)) c.active++;
+      c[st] = (c[st] ?? 0) + 1;
+      if (!["delivered", "cancelled"].includes(st)) c.active++;
     });
     return c;
   }, [orders.data]);
@@ -94,13 +101,15 @@ function AdminOrders() {
     const list = orders.data ?? [];
     const query = q.trim().toLowerCase();
     return list.filter((o: any) => {
-      if (filter === "active" && ["delivered", "cancelled"].includes(o.status)) return false;
-      if (filter !== "all" && filter !== "active" && o.status !== filter) return false;
+      const st = normalizeStatus(o.status);
+      if (filter === "active" && ["delivered", "cancelled"].includes(st)) return false;
+      if (filter !== "all" && filter !== "active" && st !== filter) return false;
       if (!query) return true;
       const hay = `${o.order_number} ${o.phone ?? ""} ${o.profiles?.full_name ?? ""}`.toLowerCase();
       return hay.includes(query);
     });
   }, [orders.data, filter, q]);
+
 
   const tabs: { id: OrderStatus | "all" | "active"; label: string }[] = [
     { id: "active", label: "Active" },
