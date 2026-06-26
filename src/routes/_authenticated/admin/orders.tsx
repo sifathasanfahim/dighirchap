@@ -174,7 +174,7 @@ function AdminOrders() {
       ) : (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           {filtered.map((o: any) => {
-            const meta = STATUS_META[o.status as OrderStatus];
+            const meta = STATUS_META[normalizeStatus(o.status)];
             return (
               <div
                 key={o.id}
