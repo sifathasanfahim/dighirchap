@@ -142,11 +142,23 @@ function AdminBanners() {
             </DialogHeader>
             <div className="grid gap-3">
               <div className="grid gap-1.5">
-                <Label>Image URL *</Label>
+                <Label>Banner image *</Label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); }}
+                />
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : "Upload image"}
+                  </Button>
+                </div>
                 <Input
                   value={form.image_url}
                   onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                  placeholder="https://..."
+                  placeholder="…or paste an image URL"
                 />
               </div>
               <div className="grid gap-1.5">
