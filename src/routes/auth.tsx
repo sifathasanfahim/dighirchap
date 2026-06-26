@@ -29,6 +29,15 @@ function AuthPage() {
 
   const [loading, setLoading] = useState(false);
 
+  // Accept email OR phone number as identifier. Phone gets mapped to <digits>@phone.local
+  const toEmail = (id: string) => {
+    const v = id.trim();
+    if (v.includes("@")) return v;
+    const digits = v.replace(/\D/g, "");
+    return `${digits}@phone.local`;
+  };
+  const isPhone = (id: string) => !id.includes("@");
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
