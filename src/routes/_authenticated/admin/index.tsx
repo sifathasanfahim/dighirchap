@@ -108,15 +108,24 @@ function AdminDashboard() {
     };
   }, [qc]);
 
-  // Keep beeping while any order is still in "pending" — stops as soon as
-  // admin confirms (or moves it forward / cancels).
+  // Keep beeping while any order is still in "pending" — stops the moment
+  // admin confirms / moves it forward / cancels.
   const pendingCount = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
+  const pendingRef = useRef(pendingCount);
+  pendingRef.current = pendingCount;
   useEffect(() => {
-    if (!pendingCount) return;
-    sfx.newOrder();
-    const id = window.setInterval(() => sfx.newOrder(), 5000);
-    return () => window.clearInterval(id);
-  }, [pendingCount]);
+    const tick = () => {
+      if (pendingRef.current > 0) sfx.newOrder();
+    };
+    tick();
+    const id = window.setInterval(tick, 2500);
+    const onClick = () => tick(); // unlock audio on first user gesture
+    window.addEventListener("click", onClick, { once: true });
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("click", onClick);
+    };
+  }, []);
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
