@@ -246,10 +246,10 @@ export function StaffShell({
         </header>
 
         <main className="flex-1">
-          <div className="mx-auto w-full max-w-6xl px-6 pt-10 pb-4 md:px-12">
-            <h1 className="font-display text-4xl font-bold tracking-[-0.03em] text-foreground">{title}</h1>
+          <div className="mx-auto w-full max-w-6xl px-4 pt-5 pb-3 sm:px-6 sm:pt-8 md:px-12 md:pt-10">
+            <h1 className="font-display text-2xl font-bold tracking-[-0.03em] text-foreground sm:text-3xl md:text-4xl">{title}</h1>
           </div>
-          <div className="mx-auto w-full max-w-6xl px-6 pb-12 md:px-12">{children}</div>
+          <div className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 sm:pb-12 md:px-12">{children}</div>
         </main>
       </div>
     </div>
