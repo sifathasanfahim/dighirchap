@@ -18,7 +18,7 @@ const openPrint = (id: string, type: "kitchen" | "invoice" | "both") => {
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 
-const STATUSES: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "picked_up", "delivered", "cancelled"];
+const STATUSES: OrderStatus[] = ["pending", "preparing", "picked_up", "delivered", "cancelled"];
 
 const STATUS_META: Record<OrderStatus, { label: string; dot: string; ring: string; chip: string; row: string }> = {
   pending:      { label: "New",        dot: "bg-red-500",     ring: "ring-red-500/40",     chip: "bg-red-600 text-white",         row: "border-l-red-500" },
