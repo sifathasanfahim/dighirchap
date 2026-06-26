@@ -118,6 +118,31 @@ export function StaffShell({
     };
   }, [variant]);
 
+  // Keep beeping every 1s while there are unconfirmed (pending) orders.
+  useEffect(() => {
+    if (variant === "rider") return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const tick = async () => {
+      if (stopped) return;
+      try {
+        const { count } = await supabase
+          .from("orders")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending");
+        if (!stopped && (count ?? 0) > 0) sfx.newOrder();
+      } catch {
+        // ignore
+      }
+      if (!stopped) timer = setTimeout(tick, 1000);
+    };
+    tick();
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [variant]);
+
   const toggleMute = () => {
     const next = !muted;
     setMuted(next);
