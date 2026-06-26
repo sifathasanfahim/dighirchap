@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
+    if (!context.userId) return;
     const { data } = await supabase
       .from("user_roles")
       .select("role")
