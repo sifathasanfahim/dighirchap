@@ -63,9 +63,9 @@ export const sfx = {
     ]),
   newOrder: () =>
     play([
-      { freq: 880, dur: 0.15, type: "triangle", vol: 0.09 },
-      { freq: 1175, dur: 0.15, type: "triangle", vol: 0.09, delay: 0.12 },
-      { freq: 1760, dur: 0.25, type: "triangle", vol: 0.09, delay: 0.24 },
+      { freq: 880, dur: 0.18, type: "square", vol: 0.5 },
+      { freq: 1175, dur: 0.18, type: "square", vol: 0.5, delay: 0.14 },
+      { freq: 1760, dur: 0.3, type: "square", vol: 0.5, delay: 0.28 },
     ]),
   error: () => play([{ freq: 220, dur: 0.25, type: "sawtooth", vol: 0.06 }]),
 };
