@@ -18,7 +18,10 @@ function AuthenticatedGate() {
 
   useEffect(() => {
     if (!userId) {
-      navigate({ to: "/auth", search: { redirect: location.href }, replace: true });
+      const id = window.setTimeout(() => {
+        navigate({ to: "/auth", search: { redirect: location.href }, replace: true });
+      }, 100);
+      return () => window.clearTimeout(id);
     }
   }, [location.href, navigate, userId]);
 
