@@ -290,7 +290,7 @@ function AdminDashboard() {
                 return (
                   <li key={o.id}>
                     <div
-                      className={`group flex flex-wrap items-center gap-4 px-5 py-3 transition hover:bg-muted/40 ${
+                      className={`group flex flex-wrap items-center gap-3 px-3 py-3 transition hover:bg-muted/40 sm:gap-4 sm:px-5 ${
                         isPending ? "bg-rose-50/40 dark:bg-rose-950/10" : ""
                       }`}
                     >
