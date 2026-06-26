@@ -83,23 +83,10 @@ function AdminDashboard() {
   const [to, setTo] = useState("");
   const range = useMemo(() => rangeFor(preset, from, to), [preset, from, to]);
 
-  const liveOrders = useQuery({
-    queryKey: ["admin-live-orders"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("orders")
-        .select("id, order_number, total, status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      return data ?? [];
-    },
-  });
-
   useEffect(() => {
     const ch = supabase
       .channel("admin-dash-orders")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
         qc.invalidateQueries({ queryKey: ["admin-stats"] });
       })
       .subscribe();
@@ -108,39 +95,6 @@ function AdminDashboard() {
     };
   }, [qc]);
 
-  // Keep beeping while any order is still in "pending" — stops the moment
-  // admin confirms / moves it forward / cancels.
-  const pendingCount = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
-  const pendingRef = useRef(pendingCount);
-  pendingRef.current = pendingCount;
-  useEffect(() => {
-    const tick = () => {
-      if (pendingRef.current > 0) sfx.newOrder();
-    };
-    tick();
-    const id = window.setInterval(tick, 1000);
-    const onClick = () => {
-      unlockSounds();
-      tick();
-    }; // unlock audio on first user gesture
-    window.addEventListener("click", onClick, { once: true });
-    return () => {
-      window.clearInterval(id);
-      window.removeEventListener("click", onClick);
-    };
-  }, []);
-
-  const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: (_d, v) => {
-      toast.success(`Order moved to ${statusMeta(v.status).label}`);
-      qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
-    },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to update"),
-  });
 
 
 
