@@ -108,6 +108,16 @@ function AdminDashboard() {
     };
   }, [qc]);
 
+  // Keep beeping while any order is still in "pending" — stops as soon as
+  // admin confirms (or moves it forward / cancels).
+  const pendingCount = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
+  useEffect(() => {
+    if (!pendingCount) return;
+    sfx.newOrder();
+    const id = window.setInterval(() => sfx.newOrder(), 5000);
+    return () => window.clearInterval(id);
+  }, [pendingCount]);
+
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
