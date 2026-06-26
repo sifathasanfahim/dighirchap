@@ -3,6 +3,7 @@
 
 let ctx: AudioContext | null = null;
 let muted = typeof window !== "undefined" && localStorage.getItem("ui-sounds-muted") === "1";
+let master: GainNode | null = null;
 
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -13,7 +14,23 @@ function getCtx(): AudioContext | null {
     ctx = new AC();
   }
   if (ctx.state === "suspended") ctx.resume().catch(() => {});
+  if (!master) {
+    master = ctx.createGain();
+    master.gain.value = 1;
+    master.connect(ctx.destination);
+  }
   return ctx;
+}
+
+export function unlockSounds() {
+  const c = getCtx();
+  if (!c) return;
+  const silent = c.createBufferSource();
+  const gain = c.createGain();
+  gain.gain.value = 0.0001;
+  silent.buffer = c.createBuffer(1, 1, c.sampleRate);
+  silent.connect(gain).connect(master ?? c.destination);
+  silent.start();
 }
 
 export function setSoundsMuted(m: boolean) {
@@ -42,7 +59,7 @@ function play(tones: Tone[]) {
     gain.gain.setValueAtTime(0, now + (t.delay ?? 0));
     gain.gain.linearRampToValueAtTime(vol, now + (t.delay ?? 0) + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + (t.delay ?? 0) + t.dur);
-    osc.connect(gain).connect(c.destination);
+    osc.connect(gain).connect(master ?? c.destination);
     osc.start(now + (t.delay ?? 0));
     osc.stop(now + (t.delay ?? 0) + t.dur + 0.02);
   });
@@ -63,9 +80,10 @@ export const sfx = {
     ]),
   newOrder: () =>
     play([
-      { freq: 880, dur: 0.18, type: "square", vol: 0.5 },
-      { freq: 1175, dur: 0.18, type: "square", vol: 0.5, delay: 0.14 },
-      { freq: 1760, dur: 0.3, type: "square", vol: 0.5, delay: 0.28 },
+      { freq: 740, dur: 0.24, type: "square", vol: 0.95 },
+      { freq: 988, dur: 0.24, type: "square", vol: 0.95, delay: 0.16 },
+      { freq: 1480, dur: 0.38, type: "square", vol: 1, delay: 0.32 },
+      { freq: 2960, dur: 0.14, type: "sawtooth", vol: 0.65, delay: 0.5 },
     ]),
   error: () => play([{ freq: 220, dur: 0.25, type: "sawtooth", vol: 0.06 }]),
 };

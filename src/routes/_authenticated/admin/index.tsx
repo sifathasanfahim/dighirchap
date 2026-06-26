@@ -8,7 +8,7 @@ import { fmtBDT } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { sfx } from "@/lib/sounds";
+import { sfx, unlockSounds } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
@@ -119,7 +119,10 @@ function AdminDashboard() {
     };
     tick();
     const id = window.setInterval(tick, 1000);
-    const onClick = () => tick(); // unlock audio on first user gesture
+    const onClick = () => {
+      unlockSounds();
+      tick();
+    }; // unlock audio on first user gesture
     window.addEventListener("click", onClick, { once: true });
     return () => {
       window.clearInterval(id);
