@@ -118,7 +118,7 @@ function AdminDashboard() {
       if (pendingRef.current > 0) sfx.newOrder();
     };
     tick();
-    const id = window.setInterval(tick, 2500);
+    const id = window.setInterval(tick, 1000);
     const onClick = () => tick(); // unlock audio on first user gesture
     window.addEventListener("click", onClick, { once: true });
     return () => {
