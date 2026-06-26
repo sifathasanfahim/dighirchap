@@ -174,7 +174,7 @@ function AdminOrders() {
       ) : (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           {filtered.map((o: any) => {
-            const meta = STATUS_META[o.status as OrderStatus];
+            const meta = STATUS_META[normalizeStatus(o.status)];
             return (
               <div
                 key={o.id}
@@ -234,7 +234,7 @@ function AdminOrders() {
 
                 <div className="flex flex-col gap-2 border-t p-3">
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
+                    <Select value={normalizeStatus(o.status)} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
                       <SelectTrigger className={cn("h-9 text-xs font-medium ring-2", meta.ring)}>
                         <SelectValue />
                       </SelectTrigger>
