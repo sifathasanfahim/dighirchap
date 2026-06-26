@@ -8,6 +8,7 @@ import { fmtBDT } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
@@ -106,6 +107,16 @@ function AdminDashboard() {
       supabase.removeChannel(ch);
     };
   }, [qc]);
+
+  // Keep beeping while any order is still in "pending" — stops as soon as
+  // admin confirms (or moves it forward / cancels).
+  const pendingCount = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
+  useEffect(() => {
+    if (!pendingCount) return;
+    sfx.newOrder();
+    const id = window.setInterval(() => sfx.newOrder(), 5000);
+    return () => window.clearInterval(id);
+  }, [pendingCount]);
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
