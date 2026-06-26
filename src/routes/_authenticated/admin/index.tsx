@@ -1,14 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ShoppingBag, DollarSign, Users, Bike, TrendingUp, Radio, Check, ChevronRight, X, Loader2, ChefHat, Receipt } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag, DollarSign, Users, Bike, TrendingUp } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { sfx, unlockSounds } from "@/lib/sounds";
+
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
@@ -35,46 +34,6 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
-const STATUS_FLOW = ["pending", "preparing", "picked_up", "delivered"] as const;
-
-function statusPriority(s: string) {
-  const order: Record<string, number> = {
-    pending: 0, confirmed: 1, preparing: 1, ready: 2,
-    picked_up: 2, delivered: 3, cancelled: 4,
-  };
-  return order[s] ?? 99;
-}
-
-function statusMeta(s: string) {
-  switch (s) {
-    case "pending":
-      return { label: "New", tone: "text-rose-600", dot: "bg-rose-500", chip: "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-900" };
-    case "confirmed":
-      return { label: "Confirmed", tone: "text-emerald-600", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900" };
-    case "preparing":
-      return { label: "Preparing", tone: "text-amber-600", dot: "bg-amber-500", chip: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900" };
-    case "ready":
-      return { label: "Ready", tone: "text-sky-600", dot: "bg-sky-500", chip: "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-900" };
-    case "picked_up":
-      return { label: "On the way", tone: "text-indigo-600", dot: "bg-indigo-500", chip: "bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900" };
-    case "delivered":
-      return { label: "Delivered", tone: "text-muted-foreground", dot: "bg-muted-foreground/60", chip: "bg-muted text-muted-foreground ring-border" };
-    case "cancelled":
-      return { label: "Cancelled", tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border line-through" };
-    default:
-      return { label: s, tone: "text-muted-foreground", dot: "bg-muted-foreground/40", chip: "bg-muted text-muted-foreground ring-border" };
-  }
-}
-
-function timeAgo(iso: string) {
-  const diff = Math.max(0, Date.now() - new Date(iso).getTime());
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
 
 function AdminDashboard() {
   const qc = useQueryClient();
@@ -83,23 +42,10 @@ function AdminDashboard() {
   const [to, setTo] = useState("");
   const range = useMemo(() => rangeFor(preset, from, to), [preset, from, to]);
 
-  const liveOrders = useQuery({
-    queryKey: ["admin-live-orders"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("orders")
-        .select("id, order_number, total, status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      return data ?? [];
-    },
-  });
-
   useEffect(() => {
     const ch = supabase
       .channel("admin-dash-orders")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
         qc.invalidateQueries({ queryKey: ["admin-stats"] });
       })
       .subscribe();
@@ -108,39 +54,6 @@ function AdminDashboard() {
     };
   }, [qc]);
 
-  // Keep beeping while any order is still in "pending" — stops the moment
-  // admin confirms / moves it forward / cancels.
-  const pendingCount = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
-  const pendingRef = useRef(pendingCount);
-  pendingRef.current = pendingCount;
-  useEffect(() => {
-    const tick = () => {
-      if (pendingRef.current > 0) sfx.newOrder();
-    };
-    tick();
-    const id = window.setInterval(tick, 1000);
-    const onClick = () => {
-      unlockSounds();
-      tick();
-    }; // unlock audio on first user gesture
-    window.addEventListener("click", onClick, { once: true });
-    return () => {
-      window.clearInterval(id);
-      window.removeEventListener("click", onClick);
-    };
-  }, []);
-
-  const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: (_d, v) => {
-      toast.success(`Order moved to ${statusMeta(v.status).label}`);
-      qc.invalidateQueries({ queryKey: ["admin-live-orders"] });
-    },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to update"),
-  });
 
 
 
@@ -239,161 +152,6 @@ function AdminDashboard() {
         })}
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border bg-card">
-        <div className="flex items-center justify-between border-b bg-muted/30 px-5 py-3">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <h2 className="text-sm font-semibold tracking-tight">Live orders</h2>
-            {liveOrders.data?.length ? (
-              <span className="rounded-full bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-border">
-                {liveOrders.data.length}
-              </span>
-            ) : null}
-            {(() => {
-              const pending = liveOrders.data?.filter((o: any) => o.status === "pending").length ?? 0;
-              return pending ? (
-                <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-600 ring-1 ring-rose-500/30">
-                  {pending} new
-                </span>
-              ) : null;
-            })()}
-          </div>
-          <Link to="/admin/orders" className="text-xs font-medium text-muted-foreground hover:text-foreground">
-            View all →
-          </Link>
-        </div>
-        {liveOrders.isLoading ? (
-          <div className="space-y-2 p-4">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-lg bg-muted/50" />
-            ))}
-          </div>
-        ) : !liveOrders.data?.length ? (
-          <div className="grid place-items-center gap-1 py-12 text-center">
-            <Radio className="h-5 w-5 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">Waiting for the first order…</p>
-          </div>
-        ) : (
-          <ul className="divide-y">
-            {[...liveOrders.data]
-              .sort((a: any, b: any) => statusPriority(a.status) - statusPriority(b.status))
-              .map((o: any) => {
-                const meta = statusMeta(o.status);
-                const stepIdx = STATUS_FLOW.indexOf(o.status as any);
-                const isPending = o.status === "pending";
-                const nextStatus = stepIdx >= 0 && stepIdx < STATUS_FLOW.length - 1 ? STATUS_FLOW[stepIdx + 1] : null;
-                const isDone = o.status === "delivered" || o.status === "cancelled";
-                const busy = updateStatus.isPending && updateStatus.variables?.id === o.id;
-                return (
-                  <li key={o.id}>
-                    <div
-                      className={`group flex flex-wrap items-center gap-3 px-3 py-3 transition hover:bg-muted/40 sm:gap-4 sm:px-5 ${
-                        isPending ? "bg-rose-50/40 dark:bg-rose-950/10" : ""
-                      }`}
-                    >
-                      <span className={`h-10 w-1 rounded-full ${meta.dot}`} />
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <Link to="/admin/orders" className="font-mono text-sm font-semibold hover:underline">
-                            #{o.order_number}
-                          </Link>
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ${meta.chip}`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-                            {meta.label}
-                          </span>
-                          <span className="text-xs text-muted-foreground">· {timeAgo(o.created_at)}</span>
-                          <span className="ml-auto text-sm font-semibold tabular-nums">{fmtBDT(Number(o.total) || 0)}</span>
-                        </div>
-
-                        {stepIdx >= 0 && o.status !== "cancelled" && (
-                          <div className="mt-2 flex items-center gap-1">
-                            {STATUS_FLOW.map((_, i) => (
-                              <span
-                                key={i}
-                                className={`h-1 flex-1 rounded-full transition-all ${
-                                  i <= stepIdx ? meta.dot : "bg-muted"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {!isDone && (
-                        <div className="flex items-center gap-1.5">
-                          {nextStatus && (
-                            <Button
-                              size="sm"
-                              disabled={busy}
-                              onClick={() => updateStatus.mutate({ id: o.id, status: nextStatus })}
-                              className="h-8 gap-1"
-                            >
-                              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                              {statusMeta(nextStatus).label}
-                              <ChevronRight className="h-3.5 w-3.5 opacity-70" />
-                            </Button>
-                          )}
-                          <select
-                            value={o.status}
-                            disabled={busy}
-                            onChange={(e) => updateStatus.mutate({ id: o.id, status: e.target.value })}
-                            className="h-8 rounded-md border bg-background px-2 text-xs font-medium"
-                            title="Change status"
-                          >
-                            {STATUS_FLOW.map((st) => (
-                              <option key={st} value={st}>{statusMeta(st).label}</option>
-                            ))}
-                            <option value="cancelled">Cancel</option>
-                          </select>
-                          {isPending && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              disabled={busy}
-                              onClick={() => updateStatus.mutate({ id: o.id, status: "cancelled" })}
-                              className="h-8 w-8 p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                              title="Cancel order"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="ml-2 flex items-center gap-1 border-l pl-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print KOT"
-                          onClick={() => window.open(`/print/${o.id}?type=kitchen`, "_blank", "width=420,height=720")}
-                        >
-                          <ChefHat className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                          title="Print Bill"
-                          onClick={() => window.open(`/print/${o.id}?type=invoice`, "_blank", "width=420,height=720")}
-                        >
-                          <Receipt className="h-4 w-4" />
-                        </Button>
-                      </div>
-
-                    </div>
-                  </li>
-                );
-              })}
-          </ul>
-        )}
-      </div>
 
 
 
