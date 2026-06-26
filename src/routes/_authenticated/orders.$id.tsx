@@ -56,7 +56,8 @@ function OrderDetail() {
   if (order.isLoading) return <CustomerShell><div className="text-muted-foreground">Loading...</div></CustomerShell>;
   if (!order.data) return <CustomerShell><div>Order not found.</div></CustomerShell>;
   const o = order.data;
-  const currentStep = steps.indexOf(o.status as typeof steps[number]);
+  const normalizedStatus = (o.status === "confirmed" ? "preparing" : o.status === "ready" ? "picked_up" : o.status) as typeof steps[number];
+  const currentStep = steps.indexOf(normalizedStatus);
 
   const reorder = () => {
     o.order_items.forEach((i) => add({ id: i.menu_item_id ?? i.id, name: i.name, price: Number(i.price) }));
