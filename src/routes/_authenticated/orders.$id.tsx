@@ -88,7 +88,7 @@ function OrderDetail() {
                   <div className={cn("grid h-7 w-7 place-items-center rounded-full text-xs", done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
                     {done ? <Check className="h-4 w-4" /> : idx + 1}
                   </div>
-                  <span className={cn("text-sm capitalize", done ? "font-medium" : "text-muted-foreground")}>{s.replace("_", " ")}</span>
+                  <span className={cn("text-sm", done ? "font-medium" : "text-muted-foreground")}>{stepLabels[s]}</span>
                 </li>
               );
             })}
