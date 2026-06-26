@@ -15,7 +15,13 @@ export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
 });
 
-const steps = ["pending", "confirmed", "preparing", "ready", "picked_up", "delivered"] as const;
+const steps = ["pending", "preparing", "picked_up", "delivered"] as const;
+const stepLabels: Record<string, string> = {
+  pending: "Order placed",
+  preparing: "Preparing your food",
+  picked_up: "Out for delivery",
+  delivered: "Delivered",
+};
 
 function OrderDetail() {
   const { id } = Route.useParams();
