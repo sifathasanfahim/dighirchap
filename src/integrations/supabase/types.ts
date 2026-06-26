@@ -149,6 +149,21 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_order_counters: {
+        Row: {
+          day: string
+          last_no: number
+        }
+        Insert: {
+          day: string
+          last_no?: number
+        }
+        Update: {
+          day?: string
+          last_no?: number
+        }
+        Relationships: []
+      }
       loyalty_rules: {
         Row: {
           coins_per_100: number
@@ -359,7 +374,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           notes: string | null
-          order_number: string
+          order_number: string | null
           payment_method: string
           phone: string
           rider_id: string | null
@@ -383,7 +398,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string | null
-          order_number?: string
+          order_number?: string | null
           payment_method?: string
           phone: string
           rider_id?: string | null
@@ -407,7 +422,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string | null
-          order_number?: string
+          order_number?: string | null
           payment_method?: string
           phone?: string
           rider_id?: string | null
