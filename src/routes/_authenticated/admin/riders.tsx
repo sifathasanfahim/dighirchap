@@ -57,10 +57,10 @@ function AdminRiders() {
 
   return (
     <StaffShell title="Riders">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">Create a rider account with a login ID + password. The rider signs in on the normal login page and lands in the rider portal automatically.</p>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Add rider</Button></DialogTrigger>
+          <DialogTrigger asChild><Button className="shrink-0"><Plus className="mr-2 h-4 w-4" /> Add rider</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add rider</DialogTitle></DialogHeader>
             <div className="space-y-3">
@@ -84,8 +84,8 @@ function AdminRiders() {
         </Dialog>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border bg-card">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border bg-card">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">Name</th>

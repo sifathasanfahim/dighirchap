@@ -114,10 +114,10 @@ function AdminMenu() {
   return (
     <StaffShell title="Menu">
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Label className="whitespace-nowrap">Filter category:</Label>
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <Label className="whitespace-nowrap">Filter:</Label>
           <Select value={filterCat} onValueChange={setFilterCat}>
-            <SelectTrigger className="w-64"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-64"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
               {categories.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
