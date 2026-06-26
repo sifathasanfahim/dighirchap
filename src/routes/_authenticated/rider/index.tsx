@@ -15,6 +15,7 @@ type OrderStatus = Database["public"]["Enums"]["order_status"];
 
 export const Route = createFileRoute("/_authenticated/rider/")({
   beforeLoad: async ({ context }) => {
+    if (!context.userId) return;
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "rider");
     if (!data?.length) throw redirect({ to: "/" });
   },

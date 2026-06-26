@@ -6,6 +6,7 @@ import { fmtBDT } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   beforeLoad: async ({ context }) => {
+    if (!context.userId) return;
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "owner");
     if (!data?.length) throw redirect({ to: "/" });
   },
