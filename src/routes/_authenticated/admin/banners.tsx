@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Trash2, Pencil, Upload } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
