@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Trash2, Pencil, Upload } from "lucide-react";
 import { StaffShell } from "@/components/staff-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,34 @@ function AdminBanners() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ ...empty });
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
+    if (file.size > 2 * 1024 * 1024) return toast.error("Image is too large. Max 2 MB.");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `banners/${crypto.randomUUID()}.${ext}`;
+      const up = await supabase.storage.from("menu-images").upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (up.error) throw up.error;
+      const signed = await supabase.storage
+        .from("menu-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signed.error) throw signed.error;
+      setForm((f) => ({ ...f, image_url: signed.data.signedUrl }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   const banners = useQuery({
     queryKey: ["admin-banners"],
@@ -114,11 +142,23 @@ function AdminBanners() {
             </DialogHeader>
             <div className="grid gap-3">
               <div className="grid gap-1.5">
-                <Label>Image URL *</Label>
+                <Label>Banner image *</Label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); }}
+                />
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    <Upload className="h-4 w-4" /> {uploading ? "Uploading…" : "Upload image"}
+                  </Button>
+                </div>
                 <Input
                   value={form.image_url}
                   onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                  placeholder="https://..."
+                  placeholder="…or paste an image URL"
                 />
               </div>
               <div className="grid gap-1.5">
