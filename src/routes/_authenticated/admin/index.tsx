@@ -35,12 +35,12 @@ function rangeFor(preset: Preset, customFrom: string, customTo: string) {
   return { from: s, to: e };
 }
 
-const STATUS_FLOW = ["pending", "confirmed", "preparing", "ready", "picked_up", "delivered"] as const;
+const STATUS_FLOW = ["pending", "preparing", "picked_up", "delivered"] as const;
 
 function statusPriority(s: string) {
   const order: Record<string, number> = {
-    pending: 0, confirmed: 1, preparing: 2, ready: 3,
-    picked_up: 4, delivered: 5, cancelled: 6,
+    pending: 0, confirmed: 1, preparing: 1, ready: 2,
+    picked_up: 2, delivered: 3, cancelled: 4,
   };
   return order[s] ?? 99;
 }

@@ -15,7 +15,13 @@ export const Route = createFileRoute("/_authenticated/orders/$id")({
   component: OrderDetail,
 });
 
-const steps = ["pending", "confirmed", "preparing", "ready", "picked_up", "delivered"] as const;
+const steps = ["pending", "preparing", "picked_up", "delivered"] as const;
+const stepLabels: Record<string, string> = {
+  pending: "Order placed",
+  preparing: "Preparing your food",
+  picked_up: "Out for delivery",
+  delivered: "Delivered",
+};
 
 function OrderDetail() {
   const { id } = Route.useParams();
@@ -50,7 +56,8 @@ function OrderDetail() {
   if (order.isLoading) return <CustomerShell><div className="text-muted-foreground">Loading...</div></CustomerShell>;
   if (!order.data) return <CustomerShell><div>Order not found.</div></CustomerShell>;
   const o = order.data;
-  const currentStep = steps.indexOf(o.status as typeof steps[number]);
+  const normalizedStatus = (o.status === "confirmed" ? "preparing" : o.status === "ready" ? "picked_up" : o.status) as typeof steps[number];
+  const currentStep = steps.indexOf(normalizedStatus);
 
   const reorder = () => {
     o.order_items.forEach((i) => add({ id: i.menu_item_id ?? i.id, name: i.name, price: Number(i.price) }));
@@ -81,7 +88,7 @@ function OrderDetail() {
                   <div className={cn("grid h-7 w-7 place-items-center rounded-full text-xs", done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
                     {done ? <Check className="h-4 w-4" /> : idx + 1}
                   </div>
-                  <span className={cn("text-sm capitalize", done ? "font-medium" : "text-muted-foreground")}>{s.replace("_", " ")}</span>
+                  <span className={cn("text-sm", done ? "font-medium" : "text-muted-foreground")}>{stepLabels[s]}</span>
                 </li>
               );
             })}

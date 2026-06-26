@@ -18,14 +18,14 @@ const openPrint = (id: string, type: "kitchen" | "invoice" | "both") => {
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 
-const STATUSES: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "picked_up", "delivered", "cancelled"];
+const STATUSES: OrderStatus[] = ["pending", "preparing", "picked_up", "delivered", "cancelled"];
 
 const STATUS_META: Record<OrderStatus, { label: string; dot: string; ring: string; chip: string; row: string }> = {
   pending:      { label: "New",        dot: "bg-red-500",     ring: "ring-red-500/40",     chip: "bg-red-600 text-white",         row: "border-l-red-500" },
   confirmed:    { label: "Confirmed",  dot: "bg-green-500",   ring: "ring-green-500/40",   chip: "bg-green-600 text-white",       row: "border-l-green-500" },
   preparing:    { label: "Preparing",  dot: "bg-amber-500",   ring: "ring-amber-500/40",   chip: "bg-amber-500 text-white",       row: "border-l-amber-500" },
   ready:        { label: "Ready",      dot: "bg-blue-500",    ring: "ring-blue-500/40",    chip: "bg-blue-600 text-white",        row: "border-l-blue-500" },
-  picked_up:    { label: "Picked up",  dot: "bg-indigo-500",  ring: "ring-indigo-500/40",  chip: "bg-indigo-600 text-white",      row: "border-l-indigo-500" },
+  picked_up:    { label: "Out for delivery",  dot: "bg-indigo-500",  ring: "ring-indigo-500/40",  chip: "bg-indigo-600 text-white",      row: "border-l-indigo-500" },
   delivered:    { label: "Delivered",  dot: "bg-emerald-500", ring: "ring-emerald-500/40", chip: "bg-emerald-600 text-white",     row: "border-l-emerald-500" },
   cancelled:    { label: "Cancelled",  dot: "bg-rose-500",    ring: "ring-rose-500/40",    chip: "bg-rose-600 text-white",        row: "border-l-rose-500" },
 };
