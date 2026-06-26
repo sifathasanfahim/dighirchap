@@ -224,16 +224,16 @@ function AdminDashboard() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <div key={c.label} className="rounded-2xl border bg-card p-5 shadow-sm">
+            <div key={c.label} className="rounded-2xl border bg-card p-3 shadow-sm sm:p-5">
               <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-sm">{c.label}</span>
-                <Icon className="h-5 w-5" />
+                <span className="text-xs sm:text-sm">{c.label}</span>
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="mt-2 text-3xl font-bold">{c.value}</div>
+              <div className="mt-2 text-xl font-bold sm:text-3xl">{c.value}</div>
             </div>
           );
         })}
