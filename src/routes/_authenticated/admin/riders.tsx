@@ -85,7 +85,7 @@ function AdminRiders() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border bg-card">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">Name</th>
