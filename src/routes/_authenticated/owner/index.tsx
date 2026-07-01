@@ -5,6 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { fmtBDT } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
+  head: () => ({
+    meta: [
+      { title: "Owner Analytics — Dighir Chap" },
+      { name: "description", content: "Owner analytics dashboard." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   beforeLoad: async ({ context }) => {
     if (!context.userId) return;
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "owner");

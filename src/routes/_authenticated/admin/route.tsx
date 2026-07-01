@@ -2,6 +2,13 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: "Admin — Dighir Chap" },
+      { name: "description", content: "Dighir Chap admin workspace." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   beforeLoad: async ({ context }) => {
     if (!context.userId) return;
     const { data } = await supabase
