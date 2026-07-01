@@ -14,6 +14,13 @@ import type { Database } from "@/integrations/supabase/types";
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 
 export const Route = createFileRoute("/_authenticated/rider/")({
+  head: () => ({
+    meta: [
+      { title: "Rider Portal — Dighir Chap" },
+      { name: "description", content: "Rider delivery portal." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   beforeLoad: async ({ context }) => {
     if (!context.userId) return;
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "rider");
