@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Coins, LogOut, Award, ChevronRight } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
