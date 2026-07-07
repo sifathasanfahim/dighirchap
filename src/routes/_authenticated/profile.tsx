@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function ProfilePage() {
   const { userId } = Route.useRouteContext();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
