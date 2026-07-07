@@ -88,6 +88,7 @@ export function StaffShell({
   const [open, setOpen] = useState(false);
   const [muted, setMuted] = useState(isSoundsMuted());
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const sections = variant === "owner" ? ownerSections : variant === "rider" ? [] : adminSections;
