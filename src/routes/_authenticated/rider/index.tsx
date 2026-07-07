@@ -71,20 +71,14 @@ function RiderPortal() {
     if (o.status !== "delivered" || !o.delivered_at) return false;
     return new Date(o.delivered_at).toDateString() === new Date().toDateString();
   });
-  const todayEarnings = todayDelivered.reduce((a, o) => a + Number(o.delivery_fee), 0);
 
   return (
     <StaffShell title="Rider Portal" variant="rider">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="text-sm text-muted-foreground">Today delivered</div>
-          <div className="mt-1 text-3xl font-bold">{todayDelivered.length}</div>
-        </div>
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="text-sm text-muted-foreground">Today earnings (fees)</div>
-          <div className="mt-1 text-3xl font-bold text-primary">{fmtBDT(todayEarnings)}</div>
-        </div>
+      <div className="rounded-2xl border bg-card p-4">
+        <div className="text-sm text-muted-foreground">Today delivered</div>
+        <div className="mt-1 text-3xl font-bold">{todayDelivered.length}</div>
       </div>
+
 
       <h2 className="mt-6 mb-3 text-lg font-bold">Assigned orders</h2>
       <div className="space-y-3">
