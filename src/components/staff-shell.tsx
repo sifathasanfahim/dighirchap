@@ -154,6 +154,8 @@ export function StaffShell({
 
   const signOut = async () => {
     sfx.click();
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
