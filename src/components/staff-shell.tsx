@@ -21,7 +21,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
@@ -88,7 +87,6 @@ export function StaffShell({
   const [open, setOpen] = useState(false);
   const [muted, setMuted] = useState(isSoundsMuted());
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const sections = variant === "owner" ? ownerSections : variant === "rider" ? [] : adminSections;
@@ -154,8 +152,6 @@ export function StaffShell({
 
   const signOut = async () => {
     sfx.click();
-    await qc.cancelQueries();
-    qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };

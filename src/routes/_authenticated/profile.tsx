@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Coins, LogOut, Award, ChevronRight } from "lucide-react";
 import { CustomerShell } from "@/components/customer-shell";
@@ -22,7 +22,6 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function ProfilePage() {
   const { userId } = Route.useRouteContext();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -55,8 +54,6 @@ function ProfilePage() {
   };
 
   const signOut = async () => {
-    await qc.cancelQueries();
-    qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
