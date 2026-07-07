@@ -21,6 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
