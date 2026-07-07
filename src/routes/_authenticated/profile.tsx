@@ -54,6 +54,8 @@ function ProfilePage() {
   };
 
   const signOut = async () => {
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
