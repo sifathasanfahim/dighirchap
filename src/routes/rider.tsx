@@ -17,7 +17,7 @@ export const Route = createFileRoute("/rider")({
         .select("role")
         .eq("user_id", data.session.user.id);
       const list = (roles ?? []).map((r) => r.role);
-      if (list.includes("rider")) throw redirect({ to: "/rider" });
+      if (list.includes("rider")) throw redirect({ to: "/rider-portal" });
       if (list.some((r) => ["owner", "manager", "cashier", "marketing", "rider_manager"].includes(r))) {
         throw redirect({ to: "/admin" });
       }
