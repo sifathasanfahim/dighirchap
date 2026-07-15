@@ -91,7 +91,7 @@ function CheckoutPage() {
             customer_id: userId,
             subtotal,
             delivery_fee: deliveryFee,
-            discount: 0,
+            discount: tierDiscount,
             coins_redeemed: redeemCoins,
             total,
             coupon_code: coupon || null,
