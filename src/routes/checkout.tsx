@@ -57,7 +57,26 @@ function CheckoutPage() {
     },
   });
 
-  const total = Math.max(0, subtotal + deliveryFee - redeemCoins);
+  const rules = useQuery({
+    queryKey: ["loyalty-rules-public"],
+    queryFn: async () =>
+      (await supabase.from("loyalty_rules").select("redeem_rate").eq("id", 1).maybeSingle()).data,
+  });
+  const redeemRate = Number(rules.data?.redeem_rate ?? 1);
+
+  const tiers = useQuery({
+    queryKey: ["loyalty-tiers"],
+    queryFn: async () =>
+      (await (supabase as any).from("loyalty_tiers").select("name, discount_pct, active")).data ?? [],
+  });
+  const tierName = (profile.data?.tier ?? "bronze") as string;
+  const tierDiscountPct = Number(
+    tiers.data?.find((t: any) => t.active && String(t.name).toLowerCase() === tierName.toLowerCase())
+      ?.discount_pct ?? 0,
+  );
+  const tierDiscount = Math.round((subtotal * tierDiscountPct) / 100);
+  const coinsValue = redeemCoins * redeemRate;
+  const total = Math.max(0, subtotal + deliveryFee - tierDiscount - coinsValue);
 
   const placeOrder = async () => {
     if (items.length === 0) return toast.error("Cart is empty");
@@ -72,7 +91,7 @@ function CheckoutPage() {
             customer_id: userId,
             subtotal,
             delivery_fee: deliveryFee,
-            discount: 0,
+            discount: tierDiscount,
             coins_redeemed: redeemCoins,
             total,
             coupon_code: coupon || null,
@@ -161,7 +180,7 @@ function CheckoutPage() {
               <h2 className="mb-3 font-semibold">Coupon & coins</h2>
               <Label>Coupon code</Label>
               <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
-              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳1)</Label>
+              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
               <Input
                 type="number"
                 min={0}
@@ -184,7 +203,8 @@ function CheckoutPage() {
             <div className="mt-3 border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{fmtBDT(subtotal)}</span></div>
               <div className="flex justify-between"><span>Delivery</span><span>{fmtBDT(deliveryFee)}</span></div>
-              {redeemCoins > 0 && <div className="flex justify-between text-primary"><span>Coins</span><span>-{fmtBDT(redeemCoins)}</span></div>}
+              {tierDiscount > 0 && <div className="flex justify-between text-primary"><span>Tier discount ({tierDiscountPct}%)</span><span>-{fmtBDT(tierDiscount)}</span></div>}
+              {coinsValue > 0 && <div className="flex justify-between text-primary"><span>Coins ({redeemCoins} × ৳{redeemRate})</span><span>-{fmtBDT(coinsValue)}</span></div>}
               <div className="flex justify-between border-t pt-2 text-base font-bold"><span>Total</span><span>{fmtBDT(total)}</span></div>
             </div>
             <div className="mt-3 rounded-lg bg-accent px-3 py-2 text-sm">💵 Cash on Delivery</div>
