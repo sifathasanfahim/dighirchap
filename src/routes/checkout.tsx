@@ -57,7 +57,26 @@ function CheckoutPage() {
     },
   });
 
-  const total = Math.max(0, subtotal + deliveryFee - redeemCoins);
+  const rules = useQuery({
+    queryKey: ["loyalty-rules-public"],
+    queryFn: async () =>
+      (await supabase.from("loyalty_rules").select("redeem_rate").eq("id", 1).maybeSingle()).data,
+  });
+  const redeemRate = Number(rules.data?.redeem_rate ?? 1);
+
+  const tiers = useQuery({
+    queryKey: ["loyalty-tiers"],
+    queryFn: async () =>
+      (await (supabase as any).from("loyalty_tiers").select("name, discount_pct, active")).data ?? [],
+  });
+  const tierName = (profile.data?.tier ?? "bronze") as string;
+  const tierDiscountPct = Number(
+    tiers.data?.find((t: any) => t.active && String(t.name).toLowerCase() === tierName.toLowerCase())
+      ?.discount_pct ?? 0,
+  );
+  const tierDiscount = Math.round((subtotal * tierDiscountPct) / 100);
+  const coinsValue = redeemCoins * redeemRate;
+  const total = Math.max(0, subtotal + deliveryFee - tierDiscount - coinsValue);
 
   const placeOrder = async () => {
     if (items.length === 0) return toast.error("Cart is empty");
