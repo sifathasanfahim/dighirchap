@@ -180,7 +180,7 @@ function CheckoutPage() {
               <h2 className="mb-3 font-semibold">Coupon & coins</h2>
               <Label>Coupon code</Label>
               <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
-              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳1)</Label>
+              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
               <Input
                 type="number"
                 min={0}
