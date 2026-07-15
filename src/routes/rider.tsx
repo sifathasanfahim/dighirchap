@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/rider-login")({
+export const Route = createFileRoute("/rider")({
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/rider-login")({
         .select("role")
         .eq("user_id", data.session.user.id);
       const list = (roles ?? []).map((r) => r.role);
-      if (list.includes("rider")) throw redirect({ to: "/rider" });
+      if (list.includes("rider")) throw redirect({ to: "/rider-portal" });
       if (list.some((r) => ["owner", "manager", "cashier", "marketing", "rider_manager"].includes(r))) {
         throw redirect({ to: "/admin" });
       }
@@ -56,7 +56,7 @@ function RiderLoginPage() {
         }
       }
       toast.success("Welcome back!");
-      navigate({ to: "/rider" });
+      navigate({ to: "/rider-portal" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {

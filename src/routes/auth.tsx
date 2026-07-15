@@ -89,7 +89,7 @@ function AuthPage() {
             return;
           }
           if (list.includes("rider")) {
-            navigate({ to: "/rider" });
+            navigate({ to: "/rider-portal" });
             return;
           }
         }

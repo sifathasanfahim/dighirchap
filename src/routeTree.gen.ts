@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RiderLoginRouteImport } from './routes/rider-login'
+import { Route as RiderRouteImport } from './routes/rider'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -20,7 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
-import { Route as AuthenticatedRiderIndexRouteImport } from './routes/_authenticated/rider/index'
+import { Route as AuthenticatedRiderPortalIndexRouteImport } from './routes/_authenticated/rider-portal/index'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner/index'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -38,9 +38,9 @@ import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminComplaintsRouteImport } from './routes/_authenticated/admin/complaints'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin/banners'
 
-const RiderLoginRoute = RiderLoginRouteImport.update({
-  id: '/rider-login',
-  path: '/rider-login',
+const RiderRoute = RiderRouteImport.update({
+  id: '/rider',
+  path: '/rider',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -92,11 +92,12 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedRiderIndexRoute = AuthenticatedRiderIndexRouteImport.update({
-  id: '/rider/',
-  path: '/rider/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedRiderPortalIndexRoute =
+  AuthenticatedRiderPortalIndexRouteImport.update({
+    id: '/rider-portal/',
+    path: '/rider-portal/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   id: '/owner/',
   path: '/owner/',
@@ -196,7 +197,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/menu': typeof MenuRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/rider-login': typeof RiderLoginRoute
+  '/rider': typeof RiderRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -216,7 +217,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
-  '/rider/': typeof AuthenticatedRiderIndexRoute
+  '/rider-portal/': typeof AuthenticatedRiderPortalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -225,7 +226,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/menu': typeof MenuRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/rider-login': typeof RiderLoginRoute
+  '/rider': typeof RiderRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
@@ -244,7 +245,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
-  '/rider': typeof AuthenticatedRiderIndexRoute
+  '/rider-portal': typeof AuthenticatedRiderPortalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -255,7 +256,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/menu': typeof MenuRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/rider-login': typeof RiderLoginRoute
+  '/rider': typeof RiderRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -275,7 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
-  '/_authenticated/rider/': typeof AuthenticatedRiderIndexRoute
+  '/_authenticated/rider-portal/': typeof AuthenticatedRiderPortalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -286,7 +287,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/menu'
     | '/reset-password'
-    | '/rider-login'
+    | '/rider'
     | '/admin'
     | '/complaints'
     | '/profile'
@@ -306,7 +307,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/orders/'
     | '/owner/'
-    | '/rider/'
+    | '/rider-portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -315,7 +316,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/menu'
     | '/reset-password'
-    | '/rider-login'
+    | '/rider'
     | '/complaints'
     | '/profile'
     | '/admin/banners'
@@ -334,7 +335,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/orders'
     | '/owner'
-    | '/rider'
+    | '/rider-portal'
   id:
     | '__root__'
     | '/'
@@ -344,7 +345,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/menu'
     | '/reset-password'
-    | '/rider-login'
+    | '/rider'
     | '/_authenticated/admin'
     | '/_authenticated/complaints'
     | '/_authenticated/profile'
@@ -364,7 +365,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/orders/'
     | '/_authenticated/owner/'
-    | '/_authenticated/rider/'
+    | '/_authenticated/rider-portal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -375,16 +376,16 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   MenuRoute: typeof MenuRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  RiderLoginRoute: typeof RiderLoginRoute
+  RiderRoute: typeof RiderRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/rider-login': {
-      id: '/rider-login'
-      path: '/rider-login'
-      fullPath: '/rider-login'
-      preLoaderRoute: typeof RiderLoginRouteImport
+    '/rider': {
+      id: '/rider'
+      path: '/rider'
+      fullPath: '/rider'
+      preLoaderRoute: typeof RiderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -457,11 +458,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/rider/': {
-      id: '/_authenticated/rider/'
-      path: '/rider'
-      fullPath: '/rider/'
-      preLoaderRoute: typeof AuthenticatedRiderIndexRouteImport
+    '/_authenticated/rider-portal/': {
+      id: '/_authenticated/rider-portal/'
+      path: '/rider-portal'
+      fullPath: '/rider-portal/'
+      preLoaderRoute: typeof AuthenticatedRiderPortalIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/owner/': {
@@ -623,7 +624,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPrintIdRoute: typeof AuthenticatedPrintIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
-  AuthenticatedRiderIndexRoute: typeof AuthenticatedRiderIndexRoute
+  AuthenticatedRiderPortalIndexRoute: typeof AuthenticatedRiderPortalIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -634,7 +635,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPrintIdRoute: AuthenticatedPrintIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
-  AuthenticatedRiderIndexRoute: AuthenticatedRiderIndexRoute,
+  AuthenticatedRiderPortalIndexRoute: AuthenticatedRiderPortalIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -648,18 +649,8 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   MenuRoute: MenuRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  RiderLoginRoute: RiderLoginRoute,
+  RiderRoute: RiderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

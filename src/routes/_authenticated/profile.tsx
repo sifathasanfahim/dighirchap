@@ -137,7 +137,7 @@ function ProfilePage() {
           <div className="flex flex-wrap gap-2">
             {staff && <Button variant="outline" onClick={() => navigate({ to: "/admin" })}>Admin</Button>}
             {owner && <Button variant="outline" onClick={() => navigate({ to: "/owner" })}>Owner</Button>}
-            {rider && <Button variant="outline" onClick={() => navigate({ to: "/rider" })}>Rider</Button>}
+            {rider && <Button variant="outline" onClick={() => navigate({ to: "/rider-portal" })}>Rider</Button>}
           </div>
         </div>
       )}
