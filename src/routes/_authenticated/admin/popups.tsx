@@ -75,10 +75,12 @@ function AdminPopups() {
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
+      const { compressImage } = await import("@/lib/image-compress");
+      const compressed = await compressImage(file, { maxDim: 1200, quality: 0.85 });
+      const ext = compressed.name.split(".").pop() || "webp";
       const path = `popups/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const up = await supabase.storage.from("menu-images").upload(path, file, {
-        contentType: file.type,
+      const up = await supabase.storage.from("menu-images").upload(path, compressed, {
+        contentType: compressed.type,
         upsert: false,
       });
       if (up.error) throw up.error;
