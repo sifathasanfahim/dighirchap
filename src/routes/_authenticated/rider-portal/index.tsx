@@ -13,7 +13,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 
-export const Route = createFileRoute("/_authenticated/rider/")({
+export const Route = createFileRoute("/_authenticated/rider-portal/")({
   head: () => ({
     meta: [
       { title: "Rider Portal — Dighir Chap" },

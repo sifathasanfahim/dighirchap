@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/rider-login")({
+export const Route = createFileRoute("/rider")({
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
@@ -56,7 +56,7 @@ function RiderLoginPage() {
         }
       }
       toast.success("Welcome back!");
-      navigate({ to: "/rider" });
+      navigate({ to: "/rider-portal" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
