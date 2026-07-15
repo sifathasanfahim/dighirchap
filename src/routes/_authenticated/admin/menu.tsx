@@ -77,14 +77,16 @@ function AdminMenu() {
 
   const uploadImage = async (file: File) => {
     if (!file.type.startsWith("image/")) return toast.error("Please pick an image");
-    if (file.size > 1024 * 1024) return toast.error("Image is too large. Max 1 MB.");
+    if (file.size > 8 * 1024 * 1024) return toast.error("Image is too large. Max 8 MB.");
     setUploading(true);
 
     try {
-      const ext = file.name.split(".").pop() || "jpg";
+      const { compressImage } = await import("@/lib/image-compress");
+      const compressed = await compressImage(file, { maxDim: 1000, quality: 0.82 });
+      const ext = compressed.name.split(".").pop() || "webp";
       const path = `${crypto.randomUUID()}.${ext}`;
-      const up = await supabase.storage.from("menu-images").upload(path, file, {
-        contentType: file.type,
+      const up = await supabase.storage.from("menu-images").upload(path, compressed, {
+        contentType: compressed.type,
         upsert: false,
       });
       if (up.error) throw up.error;
