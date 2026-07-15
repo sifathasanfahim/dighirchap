@@ -203,7 +203,8 @@ function CheckoutPage() {
             <div className="mt-3 border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{fmtBDT(subtotal)}</span></div>
               <div className="flex justify-between"><span>Delivery</span><span>{fmtBDT(deliveryFee)}</span></div>
-              {redeemCoins > 0 && <div className="flex justify-between text-primary"><span>Coins</span><span>-{fmtBDT(redeemCoins)}</span></div>}
+              {tierDiscount > 0 && <div className="flex justify-between text-primary"><span>Tier discount ({tierDiscountPct}%)</span><span>-{fmtBDT(tierDiscount)}</span></div>}
+              {coinsValue > 0 && <div className="flex justify-between text-primary"><span>Coins ({redeemCoins} × ৳{redeemRate})</span><span>-{fmtBDT(coinsValue)}</span></div>}
               <div className="flex justify-between border-t pt-2 text-base font-bold"><span>Total</span><span>{fmtBDT(total)}</span></div>
             </div>
             <div className="mt-3 rounded-lg bg-accent px-3 py-2 text-sm">💵 Cash on Delivery</div>
