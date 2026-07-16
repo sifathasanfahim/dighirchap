@@ -39,8 +39,8 @@ function RiderLoginPage() {
     setLoading(true);
     try {
       const id = riderId.trim();
-      // Match auth.tsx phone-mapping so rider IDs sign in the same way
-      const loginEmail = id.includes("@") ? id : `${id.replace(/\D/g, "") || id}@phone.local`;
+      // Rider accounts are created at <rider_id>@rider.local by the admin server fn.
+      const loginEmail = id.includes("@") ? id : `${id.toLowerCase()}@rider.local`;
       const { data: signed, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password,
