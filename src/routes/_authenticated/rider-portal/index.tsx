@@ -45,7 +45,7 @@ function RiderPortal() {
         .from("orders")
         .select("*, profiles!orders_customer_id_fkey(full_name, phone)")
         .eq("rider_id", rider.data!.id)
-        .in("status", ["confirmed", "preparing", "ready", "picked_up", "delivered"])
+        .in("status", ["preparing", "picked_up", "delivered"])
         .order("created_at", { ascending: false })
         .limit(50);
       return data ?? [];
