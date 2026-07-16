@@ -45,7 +45,7 @@ function RiderPortal() {
         .from("orders")
         .select("*, profiles!orders_customer_id_fkey(full_name, phone)")
         .eq("rider_id", rider.data!.id)
-        .in("status", ["confirmed", "preparing", "ready", "picked_up", "delivered"])
+        .in("status", ["preparing", "picked_up", "delivered"])
         .order("created_at", { ascending: false })
         .limit(50);
       return data ?? [];
@@ -99,7 +99,7 @@ function RiderPortal() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {o.phone && <a href={`tel:${o.phone}`} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs"><Phone className="h-3 w-3" /> Call</a>}
-              {o.status === "ready" && <Button size="sm" onClick={() => setStatus(o.id, "picked_up")}>Mark picked up</Button>}
+              {o.status === "preparing" && <Button size="sm" onClick={() => setStatus(o.id, "picked_up")}>Mark picked up</Button>}
               {o.status === "picked_up" && <Button size="sm" onClick={() => setStatus(o.id, "delivered")}>Mark delivered</Button>}
               {o.address && (
                 <a
