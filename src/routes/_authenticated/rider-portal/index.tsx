@@ -99,7 +99,7 @@ function RiderPortal() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {o.phone && <a href={`tel:${o.phone}`} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs"><Phone className="h-3 w-3" /> Call</a>}
-              {o.status === "ready" && <Button size="sm" onClick={() => setStatus(o.id, "picked_up")}>Mark picked up</Button>}
+              {o.status === "preparing" && <Button size="sm" onClick={() => setStatus(o.id, "picked_up")}>Mark picked up</Button>}
               {o.status === "picked_up" && <Button size="sm" onClick={() => setStatus(o.id, "delivered")}>Mark delivered</Button>}
               {o.address && (
                 <a
