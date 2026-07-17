@@ -73,9 +73,10 @@ export async function enablePushForCurrentUser(): Promise<{ ok: boolean; reason?
   let sub = await reg.pushManager.getSubscription();
   if (!sub) {
     try {
+      const key = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: key.buffer.slice(0) as ArrayBuffer,
       });
     } catch (e) {
       console.warn("[push] subscribe failed", e);
