@@ -45,7 +45,7 @@ export const sendPush = createServerFn({ method: "POST" })
       const { data: rows } = await supabaseAdmin
         .from("user_roles")
         .select("user_id")
-        .in("role", ["admin", "owner", "manager", "cashier"]);
+        .in("role", ["owner", "manager", "cashier"]);
       userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
     }
 
