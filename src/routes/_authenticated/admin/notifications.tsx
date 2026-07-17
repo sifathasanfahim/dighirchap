@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
+import { sendPush } from "@/lib/push.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/notifications")({
   component: AdminNotifications,
@@ -44,13 +45,34 @@ function AdminNotifications() {
       user_id: target === "user" ? userId.trim() : null,
     };
     const { error } = await supabase.from("notifications").insert(payload);
-    setSending(false);
     if (error) {
+      setSending(false);
       sfx.error();
       return toast.error(error.message);
     }
+    // Fire OS-level push in parallel.
+    let pushResult: { sent: number; failed: number } | null = null;
+    try {
+      pushResult = await sendPush({
+        data: {
+          target: target === "all" ? "all" : "user",
+          userId: target === "user" ? userId.trim() : null,
+          payload: {
+            title: title.trim(),
+            body: body.trim() || undefined,
+            type: "system",
+          },
+        },
+      });
+    } catch (e: any) {
+      console.warn("push send failed", e);
+    }
+    setSending(false);
     sfx.success();
-    toast.success(target === "all" ? "Broadcast sent" : "Notification sent");
+    toast.success(
+      target === "all" ? "Broadcast sent" : "Notification sent",
+      pushResult ? { description: `Push: ${pushResult.sent} delivered, ${pushResult.failed} failed` } : undefined,
+    );
     setTitle("");
     setBody("");
     recent.refetch();

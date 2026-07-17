@@ -25,7 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
 import { sfx, setSoundsMuted, isSoundsMuted } from "@/lib/sounds";
-import { toast } from "sonner";
+import { showPrettyToast } from "@/components/pretty-toast";
+import { enablePushForCurrentUser, pushSupported } from "@/lib/push-client";
 import { fmtBDT } from "@/lib/format";
 
 type NavItem = {
@@ -102,6 +103,10 @@ export function StaffShell({
   useEffect(() => {
     if (variant === "rider") return;
     ensureNotificationPermission();
+    // Silent push subscribe for staff if already granted.
+    if (pushSupported() && typeof Notification !== "undefined" && Notification.permission === "granted") {
+      enablePushForCurrentUser().catch(() => {});
+    }
     const channel = supabase
       .channel("admin-new-orders")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload: any) => {
@@ -109,14 +114,14 @@ export function StaffShell({
         sfx.newOrder();
         const t = `🛎️ New order ${o.order_number ?? ""}`.trim();
         const body = `${fmtBDT(Number(o.total) || 0)} • ${o.status ?? "pending"}`;
-        toast.success(t, { description: body, duration: 8000 });
+        showPrettyToast({ title: t, body, kind: "order", actionLabel: "Open", onAction: () => navigate({ to: "/admin/orders" }) });
         showBrowserNotification(t, body);
       })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [variant]);
+  }, [variant, navigate]);
 
   // Keep beeping every 1s while there are unconfirmed (pending) orders.
   useEffect(() => {
