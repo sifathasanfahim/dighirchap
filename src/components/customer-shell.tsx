@@ -1,13 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy, Coins } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { Home, UtensilsCrossed, ShoppingBag, Receipt, User2, LifeBuoy, Coins, BellRing } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
+import { showBrowserNotification } from "@/lib/notifications";
 import { sfx } from "@/lib/sounds";
+import { showPrettyToast } from "@/components/pretty-toast";
+import { enablePushForCurrentUser, pushSupported } from "@/lib/push-client";
 
 
 export function CustomerShell({ children }: { children: ReactNode }) {
