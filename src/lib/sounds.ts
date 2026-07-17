@@ -1,8 +1,12 @@
 // Lightweight Web Audio synthesized UI sounds.
 // No asset files; tones are generated on the fly.
 
+import { safeGet, safeSet } from "./safe-storage";
+
 let ctx: AudioContext | null = null;
-let muted = typeof window !== "undefined" && localStorage.getItem("ui-sounds-muted") === "1";
+// Safari Private Browsing throws on localStorage access — read via safeGet
+// so this module can be imported without crashing hydration.
+let muted = safeGet("ui-sounds-muted") === "1";
 let master: GainNode | null = null;
 
 function getCtx(): AudioContext | null {
@@ -35,9 +39,7 @@ export function unlockSounds() {
 
 export function setSoundsMuted(m: boolean) {
   muted = m;
-  if (typeof window !== "undefined") {
-    localStorage.setItem("ui-sounds-muted", m ? "1" : "0");
-  }
+  safeSet("ui-sounds-muted", m ? "1" : "0");
 }
 
 export function isSoundsMuted() {
