@@ -291,6 +291,8 @@ export type Database = {
           is_broadcast: boolean
           read: boolean
           title: string
+          type: string | null
+          url: string | null
           user_id: string | null
         }
         Insert: {
@@ -300,6 +302,8 @@ export type Database = {
           is_broadcast?: boolean
           read?: boolean
           title: string
+          type?: string | null
+          url?: string | null
           user_id?: string | null
         }
         Update: {
@@ -309,6 +313,8 @@ export type Database = {
           is_broadcast?: boolean
           read?: boolean
           title?: string
+          type?: string | null
+          url?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -562,6 +568,39 @@ export type Database = {
           subtitle?: string | null
           title?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
