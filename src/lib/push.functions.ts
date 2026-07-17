@@ -24,11 +24,7 @@ export const sendPush = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data, context }) => {
-    // Authorize: only staff/admin/owner may send.
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
+    // Authorize: only staff/owner may send.
     const { data: isOwner } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "owner",
@@ -36,7 +32,7 @@ export const sendPush = createServerFn({ method: "POST" })
     const { data: isStaff } = await context.supabase.rpc("is_staff", {
       _user_id: context.userId,
     });
-    if (!isAdmin && !isOwner && !isStaff) throw new Error("Forbidden");
+    if (!isOwner && !isStaff) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
