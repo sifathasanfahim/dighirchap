@@ -130,6 +130,28 @@ export function CustomerShell({ children }: { children: ReactNode }) {
           </div>
 
         </div>
+        {needsPushPrompt && (
+          <div className="border-t bg-primary/5 px-4 py-2">
+            <div className="mx-auto flex max-w-5xl items-center gap-3">
+              <BellRing className="h-4 w-4 flex-none text-primary" />
+              <p className="min-w-0 flex-1 text-xs text-foreground">
+                Turn on notifications to get order updates & offers on your phone.
+              </p>
+              <button
+                onClick={enablePush}
+                className="flex-none rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Enable
+              </button>
+              <button
+                onClick={() => setNeedsPushPrompt(false)}
+                className="flex-none text-xs text-muted-foreground hover:text-foreground"
+              >
+                Later
+              </button>
+            </div>
+          </div>
+        )}
       </header>
       <main className="mx-auto max-w-5xl px-4 py-4">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 backdrop-blur">
