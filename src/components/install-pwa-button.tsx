@@ -35,7 +35,7 @@ export function InstallPWAButton() {
 
   useEffect(() => {
     if (isStandalone()) return;
-    const dismissed = Number(localStorage.getItem(DISMISS_KEY) || 0);
+    const dismissed = Number(safeGet(DISMISS_KEY) || 0);
     if (dismissed && Date.now() - dismissed < DISMISS_MS) return;
 
     const onBIP = (e: Event) => {
@@ -63,7 +63,7 @@ export function InstallPWAButton() {
   if (!visible) return null;
 
   const dismiss = () => {
-    localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    safeSet(DISMISS_KEY, String(Date.now()));
     setVisible(false);
     setShowIOSHint(false);
   };
