@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { safeStorage } from "./safe-storage";
 
 export interface CartItem {
   id: string;
@@ -40,6 +41,10 @@ export const useCart = create<CartState>()(
       count: () => get().items.reduce((a, i) => a + i.qty, 0),
       subtotal: () => get().items.reduce((a, i) => a + i.qty * i.price, 0),
     }),
-    { name: "dighir-cart" },
+    {
+      name: "dighir-cart",
+      // safeStorage prevents Safari Private Browsing from throwing on init.
+      storage: createJSONStorage(() => safeStorage("local")),
+    },
   ),
 );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
+import { safeGet, safeSet } from "@/lib/safe-storage";
 
 type BIPEvent = Event & {
   prompt: () => Promise<void>;
@@ -11,11 +12,15 @@ const DISMISS_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia?.("(display-mode: standalone)").matches ||
-    // @ts-expect-error iOS Safari
-    window.navigator.standalone === true
-  );
+  try {
+    return (
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      // @ts-expect-error iOS Safari
+      window.navigator.standalone === true
+    );
+  } catch {
+    return false;
+  }
 }
 
 function isIOS() {
@@ -30,7 +35,7 @@ export function InstallPWAButton() {
 
   useEffect(() => {
     if (isStandalone()) return;
-    const dismissed = Number(localStorage.getItem(DISMISS_KEY) || 0);
+    const dismissed = Number(safeGet(DISMISS_KEY) || 0);
     if (dismissed && Date.now() - dismissed < DISMISS_MS) return;
 
     const onBIP = (e: Event) => {
@@ -58,7 +63,7 @@ export function InstallPWAButton() {
   if (!visible) return null;
 
   const dismiss = () => {
-    localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    safeSet(DISMISS_KEY, String(Date.now()));
     setVisible(false);
     setShowIOSHint(false);
   };
