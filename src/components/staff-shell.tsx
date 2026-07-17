@@ -25,7 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ensureNotificationPermission, showBrowserNotification } from "@/lib/notifications";
 import { sfx, setSoundsMuted, isSoundsMuted } from "@/lib/sounds";
-import { toast } from "sonner";
+import { showPrettyToast } from "@/components/pretty-toast";
+import { enablePushForCurrentUser, pushSupported } from "@/lib/push-client";
 import { fmtBDT } from "@/lib/format";
 
 type NavItem = {
