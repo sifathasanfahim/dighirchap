@@ -25,8 +25,16 @@ export function CustomerShell({ children }: { children: ReactNode }) {
     },
     staleTime: 30_000,
   });
+  const [needsPushPrompt, setNeedsPushPrompt] = useState(false);
+
   useEffect(() => {
-    ensureNotificationPermission();
+    // Silent auto-subscribe if permission already granted.
+    if (typeof window !== "undefined" && pushSupported() && Notification.permission === "granted") {
+      enablePushForCurrentUser().catch(() => {});
+    } else if (typeof window !== "undefined" && pushSupported() && Notification.permission === "default") {
+      setNeedsPushPrompt(true);
+    }
+
     let cancelled = false;
     const setup = async () => {
       const { data: u } = await supabase.auth.getUser();
@@ -41,7 +49,14 @@ export function CustomerShell({ children }: { children: ReactNode }) {
             const n = payload.new;
             if (!n.is_broadcast && n.user_id !== uid) return;
             sfx.notify();
-            toast(n.title, { description: n.body ?? undefined, duration: 8000 });
+            const kind = n.type === "order" ? "order" : n.type === "promo" ? "promo" : "system";
+            showPrettyToast({
+              title: n.title,
+              body: n.body ?? undefined,
+              kind,
+              actionLabel: n.url ? "View" : undefined,
+              onAction: n.url ? () => (window.location.href = n.url) : undefined,
+            });
             showBrowserNotification(n.title, n.body ?? undefined);
           },
         )
@@ -54,6 +69,26 @@ export function CustomerShell({ children }: { children: ReactNode }) {
       cleanup.then((fn) => fn?.());
     };
   }, []);
+
+  const enablePush = async () => {
+    sfx.click();
+    const res = await enablePushForCurrentUser();
+    if (res.ok) {
+      setNeedsPushPrompt(false);
+      showPrettyToast({
+        title: "Notifications on 🔔",
+        body: "You'll get updates on your phone even when the app is closed.",
+        kind: "success",
+      });
+    } else if (res.reason === "denied") {
+      setNeedsPushPrompt(false);
+      showPrettyToast({
+        title: "Notifications blocked",
+        body: "Enable them in your browser settings to receive updates.",
+        kind: "system",
+      });
+    }
+  };
 
 
 
