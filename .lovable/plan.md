@@ -1,63 +1,58 @@
 ## Goal
-4টা feature add করব: (1) CRM থেকে browser push notification, (2) নতুন order এলে admin dashboard-এ auto popup + sound, (3) dashboard-এ recent orders live feed, (4) website জুড়ে button click-এ modern UI sound।
+এখন notification গুলা শুধু tab খোলা থাকলে in-app toast + browser Notification হিসেবে আসে। User চাচ্ছে **OS-level push** — ফোনের notification tray-তে swipe করা যায়, app বন্ধ থাকলেও আসে (installed PWA-এর মতো)। সাথে notification UI আরেকটু সুন্দর।
 
-## Scope decision — Browser Notification
+## দুইটা ভাগ
 
-দুটো option আছে, আমি **Option A** suggest করছি (simpler, কোনো extra secret/key লাগবে না):
+### Part A — Real Web Push (background notifications)
+এইটা করতে **VAPID keys + service worker + push subscription storage + server sender** লাগবে। iOS-এ কাজ করবে **শুধু যদি user "Add to Home Screen" করে PWA install করে** (Apple-এর সীমা, আমাদের হাতে নেই)। Android Chrome/Edge/Firefox-এ browser-এই কাজ করবে।
 
-- **Option A — In-app + Tab notification (recommended)**: User যখন website-এ আছে (যেকোনো tab open থাকলে), browser-এর native `Notification` API দিয়ে notification pop up হবে + sound বাজবে। User permission একবার দিলেই হবে। কোনো VAPID key, service worker বা backend push server লাগবে না। Supabase Realtime দিয়ে instantly deliver হবে।
-- **Option B — Web Push (background)**: User website বন্ধ করলেও notification পাবে। এটার জন্য VAPID keys generate করতে হবে, service worker setup, push subscription storage, server-side push sender — সব মিলিয়ে বড় work।
+**Steps:**
+1. **VAPID keys generate** — একটা one-time script দিয়ে public + private key বানাব। Private key → Supabase secret (`VAPID_PRIVATE_KEY`), public key → `VITE_VAPID_PUBLIC_KEY` env।
+2. **DB table** `push_subscriptions` (user_id, endpoint, p256dh, auth, user_agent, created_at) + RLS।
+3. **Service worker** `public/push-sw.js` — শুধু `push` + `notificationclick` event handle করবে। App-shell cache করবে না (Lovable preview safety)। Registration wrapper preview/dev-এ skip করবে।
+4. **Subscribe hook** — customer shell + admin shell-এ, permission granted হলে subscribe করে endpoint DB-তে save করবে।
+5. **Server function** `sendPush` — `web-push` npm package দিয়ে subscription-এ push পাঠাবে। DB trigger বা admin notifications page থেকে call হবে।
+6. **CRM notification form** এখন যেভাবে `notifications` table-এ insert করে, সেই same flow-এ extra step: `sendPush` server fn call করে matching subscription-গুলাতে push দিবে।
+7. **Order alerts** — নতুন order এলে admin-দের subscription-এ push (rider role বাদ)।
 
-আমি Option A দিয়ে শুরু করছি। পরে দরকার হলে Option B add করা যাবে।
+### Part B — Prettier notification UI
+1. **In-app toast redesign** — bigger card, icon (bell/bag/coin depending on type), gradient border, subtle enter animation, "View" action button।
+2. **OS notification payload** — proper `icon`, `badge`, `image` (hero), `actions` (View / Dismiss), `vibrate`, `tag` (dedupe), `renotify: true`।
+3. **Notification icon assets** — `public/notif-icon.png` (192), `public/notif-badge.png` (72 monochrome)।
+4. Notification `type` field add করব (`order`, `promo`, `system`) যাতে icon/color আলাদা হয়।
 
-## Implementation
+## Files
+- `scripts/gen-vapid.mjs` (new) — one-time key generation
+- Migration — `push_subscriptions` table + RLS + grants; `notifications.type` column
+- `public/push-sw.js` (new) — push + notificationclick only, guarded scope
+- `src/lib/push-client.ts` (new) — subscribe/unsubscribe helpers, SW registration with preview guard
+- `src/lib/push.functions.ts` (new) — `sendPush` server function using `web-push`
+- `src/components/pretty-toast.tsx` (new) — custom sonner toast renderer
+- `src/components/customer-shell.tsx` — auto-subscribe after permission, use pretty toast
+- `src/components/staff-shell.tsx` — auto-subscribe (admin/owner), pretty toast for new orders
+- `src/routes/_authenticated/admin/notifications.tsx` — trigger `sendPush` after insert; show subscriber count
+- `src/integrations/supabase/auth-attacher.ts` — no change (already handles bearer)
 
-### 1. CRM → User browser notification
-- **DB**: `notifications` table already exists। শুধু একটা `broadcast` flag বা `target_user_id = null` ব্যবহার করব "send to all" এর জন্য। Realtime enable করব এই table-এ।
-- **Admin page** `/admin/notifications`: form দিয়ে title + body লিখে "Send to all" বা specific customer select করে push করা যাবে।
-- **Client side**: customer shell এ একটা hook subscribe করবে `notifications` table-এ; নতুন row এলে `new Notification(title, { body })` fire করবে + soft "ding" sound বাজাবে + toast দেখাবে।
-- প্রথমবার page load-এ permission request করব ("Allow notifications" prompt)।
+## Secrets needed
+- `VAPID_PUBLIC_KEY` (public — also expose as `VITE_VAPID_PUBLIC_KEY`)
+- `VAPID_PRIVATE_KEY` (server secret)
+- `VAPID_SUBJECT` (mailto: URL, e.g. `mailto:admin@dighirchap.com`)
 
-### 2. Admin dashboard — new order alert
-- `orders` table-এ Realtime subscribe করব admin dashboard-এ।
-- নতুন order INSERT হলে: 
-  - Top-right এ animated toast "🛎️ New order #1234 — ৳450"
-  - Notification sound বাজবে (different tone — "cha-ching" style)
-  - Browser notification (যদি permission থাকে)
-  - Recent orders list-এর top-এ যোগ হবে
+আমি generate করে secret-এ set করে দিব — user-কে কিছু করতে হবে না।
 
-### 3. Dashboard recent orders panel
-- Existing dashboard-এ একটা নতুন section "Live orders (last 10)" — pending/preparing orders চলবে real-time।
+## iOS note (important)
+Real push iOS-এ কাজ করবে **শুধু** যখন user Safari-তে site খুলে → Share → "Add to Home Screen" → home screen icon থেকে launch করে। এইটা Apple-এর restriction, workaround নাই। Install button আগেই আছে; iOS instruction card-এ এই কথাটা যোগ করব।
 
-### 4. UI sounds
-- ছোট utility `src/lib/sounds.ts` — Web Audio API দিয়ে synthesized tones (no asset files, lightweight):
-  - `click()` — soft tap
-  - `success()` — pleasant chime (add to cart, place order)
-  - `notify()` — gentle ding (new notification)
-  - `newOrder()` — distinctive chime (admin only)
-- A global helper hook + opt-out toggle in user profile (mute button)। Default on।
-- Major buttons এ wire করব: Add to cart, Place order, Login success ইত্যাদি।
-
-## Files to touch
-- `src/lib/sounds.ts` (new) — Web Audio synth helpers
-- `src/lib/notifications.ts` (new) — permission helper + show()
-- `src/routes/_authenticated/admin/notifications.tsx` (new)
-- `src/routes/_authenticated/admin/index.tsx` — add live orders panel + realtime
-- `src/components/customer-shell.tsx` — subscribe to notifications, show toasts
-- `src/components/staff-shell.tsx` — admin notification permission, new-order subscriber
-- Migration — enable Realtime on `notifications` and `orders` tables; allow admin to insert broadcast notifications via RLS।
-
-## ASCII flow
+## Flow
 ```text
-Admin form ─► insert notifications row
-                     │
-        Supabase Realtime broadcast
-                     │
-     ┌───────────────┴───────────────┐
-     ▼                               ▼
-Customer browser                Admin dashboard
-- Notification API              - Toast + sound
-- Toast + ding                  - List refresh
+Admin sends notification
+        │
+        ├─► INSERT notifications row (in-app toast for open tabs — existing)
+        │
+        └─► sendPush server fn
+                │
+                ├─► fetch subscriptions (broadcast=all, or user_id match)
+                └─► web-push.sendNotification(each) ──► phone OS tray
 ```
 
-Confirm করলে implement শুরু করছি।
+Confirm করলে shuru korchi।
