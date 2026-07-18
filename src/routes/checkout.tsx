@@ -78,7 +78,45 @@ function CheckoutPage() {
   );
   const tierDiscount = Math.round((subtotal * tierDiscountPct) / 100);
   const coinsValue = redeemCoins * redeemRate;
-  const total = Math.max(0, subtotal + deliveryFee - tierDiscount - coinsValue);
+
+  let couponDiscount = 0;
+  let couponFreeDelivery = false;
+  if (appliedCoupon && subtotal >= appliedCoupon.min_order) {
+    if (appliedCoupon.type === "flat") couponDiscount = Math.min(appliedCoupon.value, subtotal);
+    else if (appliedCoupon.type === "percent") couponDiscount = Math.round((subtotal * appliedCoupon.value) / 100);
+    else if (appliedCoupon.type === "free_delivery") couponFreeDelivery = true;
+  }
+  const effectiveDelivery = couponFreeDelivery ? 0 : deliveryFee;
+  const total = Math.max(0, subtotal + effectiveDelivery - tierDiscount - couponDiscount - coinsValue);
+
+  const applyCoupon = async () => {
+    const code = coupon.trim().toUpperCase();
+    if (!code) return;
+    setCouponChecking(true);
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("code, type, value, min_order, active, expires_at")
+        .eq("code", code)
+        .eq("active", true)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return toast.error("Invalid or inactive coupon");
+      if (data.expires_at && new Date(data.expires_at) < new Date()) return toast.error("Coupon expired");
+      if (subtotal < (data.min_order ?? 0)) return toast.error(`Minimum order ৳${data.min_order} required`);
+      setAppliedCoupon({ code: data.code, type: data.type as any, value: Number(data.value), min_order: Number(data.min_order ?? 0) });
+      toast.success(`Coupon ${data.code} applied`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to apply coupon");
+    } finally {
+      setCouponChecking(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCoupon("");
+  };
 
   const placeOrder = async () => {
     if (items.length === 0) return toast.error("Cart is empty");
