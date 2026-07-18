@@ -34,7 +34,8 @@ export const sendPush = createServerFn({ method: "POST" })
     });
     if (!isOwner && !isStaff) throw new Error("Forbidden");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Use the RLS-scoped client (staff/owner have SELECT/DELETE via policies).
+    const db = context.supabase;
 
     // Resolve target user IDs.
     let userIds: string[] | null = null;
@@ -42,14 +43,14 @@ export const sendPush = createServerFn({ method: "POST" })
       if (!data.userId) throw new Error("userId required");
       userIds = [data.userId];
     } else if (data.target === "admins") {
-      const { data: rows } = await supabaseAdmin
+      const { data: rows } = await db
         .from("user_roles")
         .select("user_id")
         .in("role", ["owner", "manager", "cashier"]);
       userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
     }
 
-    let query = supabaseAdmin
+    let query = db
       .from("push_subscriptions")
       .select("endpoint,p256dh,auth,id");
     if (userIds) query = query.in("user_id", userIds);
@@ -87,7 +88,7 @@ export const sendPush = createServerFn({ method: "POST" })
     );
 
     if (stale.length) {
-      await supabaseAdmin.from("push_subscriptions").delete().in("id", stale);
+      await db.from("push_subscriptions").delete().in("id", stale);
     }
     return { sent, failed };
   });
