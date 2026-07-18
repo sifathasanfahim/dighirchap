@@ -215,21 +215,35 @@ function CheckoutPage() {
             <Label htmlFor="nt" className="mt-3 block">Notes (optional)</Label>
             <Textarea id="nt" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </div>
-          {userId && (
-            <div className="rounded-2xl border bg-card p-4">
-              <h2 className="mb-3 font-semibold">Coupon & coins</h2>
-              <Label>Coupon code</Label>
-              <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
-              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
-              <Input
-                type="number"
-                min={0}
-                max={profile.data?.coins ?? 0}
-                value={redeemCoins}
-                onChange={(e) => setRedeemCoins(Math.min(Number(e.target.value) || 0, profile.data?.coins ?? 0))}
-              />
-            </div>
-          )}
+          <div className="rounded-2xl border bg-card p-4">
+            <h2 className="mb-3 font-semibold">Coupon{userId ? " & coins" : ""}</h2>
+            <Label>Coupon code</Label>
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
+                <span><span className="font-semibold text-primary">{appliedCoupon.code}</span> applied</span>
+                <button onClick={removeCoupon} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
+                <Button type="button" variant="secondary" onClick={applyCoupon} disabled={couponChecking || !coupon.trim()}>
+                  {couponChecking ? "..." : "Apply"}
+                </Button>
+              </div>
+            )}
+            {userId && (
+              <>
+                <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={profile.data?.coins ?? 0}
+                  value={redeemCoins}
+                  onChange={(e) => setRedeemCoins(Math.min(Number(e.target.value) || 0, profile.data?.coins ?? 0))}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className="space-y-3">
           <div className="rounded-2xl border bg-card p-4">
