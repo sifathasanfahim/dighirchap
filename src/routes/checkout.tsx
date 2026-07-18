@@ -256,8 +256,12 @@ function CheckoutPage() {
             ))}
             <div className="mt-3 border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{fmtBDT(subtotal)}</span></div>
-              <div className="flex justify-between"><span>Delivery</span><span>{fmtBDT(deliveryFee)}</span></div>
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span>{couponFreeDelivery ? <><span className="mr-2 text-muted-foreground line-through">{fmtBDT(deliveryFee)}</span><span className="text-primary">FREE</span></> : fmtBDT(deliveryFee)}</span>
+              </div>
               {tierDiscount > 0 && <div className="flex justify-between text-primary"><span>Tier discount ({tierDiscountPct}%)</span><span>-{fmtBDT(tierDiscount)}</span></div>}
+              {couponDiscount > 0 && <div className="flex justify-between text-primary"><span>Coupon ({appliedCoupon?.code})</span><span>-{fmtBDT(couponDiscount)}</span></div>}
               {coinsValue > 0 && <div className="flex justify-between text-primary"><span>Coins ({redeemCoins} × ৳{redeemRate})</span><span>-{fmtBDT(coinsValue)}</span></div>}
               <div className="flex justify-between border-t pt-2 text-base font-bold"><span>Total</span><span>{fmtBDT(total)}</span></div>
             </div>
