@@ -41,8 +41,27 @@ export const placeGuestOrder = createServerFn({ method: "POST" })
       const p = priceMap.get(it.menu_item_id)!.price as number;
       return a + p * it.qty;
     }, 0);
-    const delivery_fee = 60;
-    const total = subtotal + delivery_fee;
+    let delivery_fee = 60;
+    let discount = 0;
+    let coupon_code: string | null = null;
+
+    if (data.coupon_code) {
+      const code = data.coupon_code.trim().toUpperCase();
+      const { data: c } = await supabaseAdmin
+        .from("coupons")
+        .select("code, type, value, min_order, active, expires_at")
+        .eq("code", code)
+        .eq("active", true)
+        .maybeSingle();
+      if (c && (!c.expires_at || new Date(c.expires_at) > new Date()) && subtotal >= (c.min_order ?? 0)) {
+        coupon_code = c.code;
+        if (c.type === "flat") discount = Math.min(Number(c.value), subtotal);
+        else if (c.type === "percent") discount = Math.round((subtotal * Number(c.value)) / 100);
+        else if (c.type === "free_delivery") delivery_fee = 0;
+      }
+    }
+
+    const total = Math.max(0, subtotal + delivery_fee - discount);
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")
@@ -51,10 +70,10 @@ export const placeGuestOrder = createServerFn({ method: "POST" })
         guest_name: data.guest_name,
         subtotal,
         delivery_fee,
-        discount: 0,
+        discount,
         coins_redeemed: 0,
         total,
-        coupon_code: data.coupon_code || null,
+        coupon_code,
         payment_method: "cod",
         address: data.address,
         phone: data.phone,
