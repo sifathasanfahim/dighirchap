@@ -88,7 +88,7 @@ export const sendPush = createServerFn({ method: "POST" })
     );
 
     if (stale.length) {
-      await supabaseAdmin.from("push_subscriptions").delete().in("id", stale);
+      await db.from("push_subscriptions").delete().in("id", stale);
     }
     return { sent, failed };
   });
