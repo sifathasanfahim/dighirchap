@@ -32,6 +32,8 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<null | { code: string; type: "flat" | "percent" | "free_delivery"; value: number; min_order: number }>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
   const [redeemCoins, setRedeemCoins] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const guestOrderFn = useServerFn(placeGuestOrder);
@@ -76,7 +78,45 @@ function CheckoutPage() {
   );
   const tierDiscount = Math.round((subtotal * tierDiscountPct) / 100);
   const coinsValue = redeemCoins * redeemRate;
-  const total = Math.max(0, subtotal + deliveryFee - tierDiscount - coinsValue);
+
+  let couponDiscount = 0;
+  let couponFreeDelivery = false;
+  if (appliedCoupon && subtotal >= appliedCoupon.min_order) {
+    if (appliedCoupon.type === "flat") couponDiscount = Math.min(appliedCoupon.value, subtotal);
+    else if (appliedCoupon.type === "percent") couponDiscount = Math.round((subtotal * appliedCoupon.value) / 100);
+    else if (appliedCoupon.type === "free_delivery") couponFreeDelivery = true;
+  }
+  const effectiveDelivery = couponFreeDelivery ? 0 : deliveryFee;
+  const total = Math.max(0, subtotal + effectiveDelivery - tierDiscount - couponDiscount - coinsValue);
+
+  const applyCoupon = async () => {
+    const code = coupon.trim().toUpperCase();
+    if (!code) return;
+    setCouponChecking(true);
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("code, type, value, min_order, active, expires_at")
+        .eq("code", code)
+        .eq("active", true)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return toast.error("Invalid or inactive coupon");
+      if (data.expires_at && new Date(data.expires_at) < new Date()) return toast.error("Coupon expired");
+      if (subtotal < (data.min_order ?? 0)) return toast.error(`Minimum order ৳${data.min_order} required`);
+      setAppliedCoupon({ code: data.code, type: data.type as any, value: Number(data.value), min_order: Number(data.min_order ?? 0) });
+      toast.success(`Coupon ${data.code} applied`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to apply coupon");
+    } finally {
+      setCouponChecking(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCoupon("");
+  };
 
   const placeOrder = async () => {
     if (items.length === 0) return toast.error("Cart is empty");
@@ -90,11 +130,11 @@ function CheckoutPage() {
           .insert({
             customer_id: userId,
             subtotal,
-            delivery_fee: deliveryFee,
-            discount: tierDiscount,
+            delivery_fee: effectiveDelivery,
+            discount: tierDiscount + couponDiscount,
             coins_redeemed: redeemCoins,
             total,
-            coupon_code: coupon || null,
+            coupon_code: appliedCoupon?.code || null,
             payment_method: "cod",
             address,
             phone,
@@ -129,7 +169,7 @@ function CheckoutPage() {
             phone: phone.trim(),
             address: address.trim(),
             notes: notes.trim() || null,
-            coupon_code: coupon.trim() || null,
+            coupon_code: appliedCoupon?.code ?? null,
             items: items.map((i) => ({ menu_item_id: i.id, qty: i.qty })),
           },
         });
@@ -175,21 +215,35 @@ function CheckoutPage() {
             <Label htmlFor="nt" className="mt-3 block">Notes (optional)</Label>
             <Textarea id="nt" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </div>
-          {userId && (
-            <div className="rounded-2xl border bg-card p-4">
-              <h2 className="mb-3 font-semibold">Coupon & coins</h2>
-              <Label>Coupon code</Label>
-              <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
-              <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
-              <Input
-                type="number"
-                min={0}
-                max={profile.data?.coins ?? 0}
-                value={redeemCoins}
-                onChange={(e) => setRedeemCoins(Math.min(Number(e.target.value) || 0, profile.data?.coins ?? 0))}
-              />
-            </div>
-          )}
+          <div className="rounded-2xl border bg-card p-4">
+            <h2 className="mb-3 font-semibold">Coupon{userId ? " & coins" : ""}</h2>
+            <Label>Coupon code</Label>
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
+                <span><span className="font-semibold text-primary">{appliedCoupon.code}</span> applied</span>
+                <button onClick={removeCoupon} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="WELCOME50" />
+                <Button type="button" variant="secondary" onClick={applyCoupon} disabled={couponChecking || !coupon.trim()}>
+                  {couponChecking ? "..." : "Apply"}
+                </Button>
+              </div>
+            )}
+            {userId && (
+              <>
+                <Label className="mt-3 block">Redeem coins ({profile.data?.coins ?? 0} available, 1 coin = ৳{redeemRate})</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={profile.data?.coins ?? 0}
+                  value={redeemCoins}
+                  onChange={(e) => setRedeemCoins(Math.min(Number(e.target.value) || 0, profile.data?.coins ?? 0))}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className="space-y-3">
           <div className="rounded-2xl border bg-card p-4">
@@ -202,8 +256,12 @@ function CheckoutPage() {
             ))}
             <div className="mt-3 border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{fmtBDT(subtotal)}</span></div>
-              <div className="flex justify-between"><span>Delivery</span><span>{fmtBDT(deliveryFee)}</span></div>
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span>{couponFreeDelivery ? <><span className="mr-2 text-muted-foreground line-through">{fmtBDT(deliveryFee)}</span><span className="text-primary">FREE</span></> : fmtBDT(deliveryFee)}</span>
+              </div>
               {tierDiscount > 0 && <div className="flex justify-between text-primary"><span>Tier discount ({tierDiscountPct}%)</span><span>-{fmtBDT(tierDiscount)}</span></div>}
+              {couponDiscount > 0 && <div className="flex justify-between text-primary"><span>Coupon ({appliedCoupon?.code})</span><span>-{fmtBDT(couponDiscount)}</span></div>}
               {coinsValue > 0 && <div className="flex justify-between text-primary"><span>Coins ({redeemCoins} × ৳{redeemRate})</span><span>-{fmtBDT(coinsValue)}</span></div>}
               <div className="flex justify-between border-t pt-2 text-base font-bold"><span>Total</span><span>{fmtBDT(total)}</span></div>
             </div>
