@@ -169,7 +169,7 @@ function CheckoutPage() {
             phone: phone.trim(),
             address: address.trim(),
             notes: notes.trim() || null,
-            coupon_code: coupon.trim() || null,
+            coupon_code: appliedCoupon?.code ?? null,
             items: items.map((i) => ({ menu_item_id: i.id, qty: i.qty })),
           },
         });
