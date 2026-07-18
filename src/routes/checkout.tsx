@@ -32,6 +32,8 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<null | { code: string; type: "flat" | "percent" | "free_delivery"; value: number; min_order: number }>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
   const [redeemCoins, setRedeemCoins] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const guestOrderFn = useServerFn(placeGuestOrder);
